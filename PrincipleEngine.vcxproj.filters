@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Frame">
+      <UniqueIdentifier>{a49a2da5-7bdb-48c5-b740-e8c503ecb598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\源文件">
+      <UniqueIdentifier>{307ea662-b43e-4f71-96fc-27c7a319d0e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{04d9d321-f8f9-4318-913e-0cc4f80db0ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Frame\头文件">
+      <UniqueIdentifier>{95883b66-be25-4bd8-90d9-5947092b8212}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{94d06b18-53a5-492b-be2a-a6e468c56567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{8c74c8f8-cbe1-45d1-a68a-f874b2744899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D">
+      <UniqueIdentifier>{8718b945-e9bb-4e9e-87b2-a8a652149ea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\头文件">
+      <UniqueIdentifier>{1f062637-66a2-4907-8a1e-9f77369aaf38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D\EditorUi">
+      <UniqueIdentifier>{ad7b5f7b-b71c-4310-83cd-7c6310a549ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D\EditorUi\头文件">
+      <UniqueIdentifier>{88eeafc6-5a75-4546-b027-9ac2684d0ffb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D\EditorUi\源文件">
+      <UniqueIdentifier>{c0de3f60-9c01-4cce-a398-50d9005b5d70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\MicroSoft">
+      <UniqueIdentifier>{e29cee43-5816-46bd-9bf6-be2b7f045cfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\MicroSoft\头文件">
+      <UniqueIdentifier>{7c2e4ecc-e49a-4360-8c2b-f8c4f44f3c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\MicroSoft\源文件">
+      <UniqueIdentifier>{96e3fece-496e-42ef-b0bc-8a765e9fb6a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Engine">
+      <UniqueIdentifier>{77dab7c7-bb59-4052-abf5-a302990b748b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Engine\头文件">
+      <UniqueIdentifier>{d350f3ae-5de7-48c6-873b-16a0f44790a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Engine\源文件">
+      <UniqueIdentifier>{448fb6b7-ebc9-4e31-b482-47afe6423a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\源文件">
+      <UniqueIdentifier>{9650d2d9-3bf1-402c-a029-ad809c8a97eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Memory">
+      <UniqueIdentifier>{ed0ce8ee-5fa4-41cb-b4d2-e0cc07babfa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Memory\头文件">
+      <UniqueIdentifier>{ded18368-8939-4fca-b8bf-2e612fff9c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D\EditorUi\Engine">
+      <UniqueIdentifier>{a82d858d-ea7c-4f02-ae36-19723ec4c82e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D\EditorUi\Engine\头文件">
+      <UniqueIdentifier>{40146791-a319-48c8-b606-30820dcee605}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core2D\EditorUi\Engine\源文件">
+      <UniqueIdentifier>{91ab6abe-b0d3-4d4f-bfc2-6721d6d72c8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool">
+      <UniqueIdentifier>{148dbb06-aaa6-41ad-93ac-087dee62897a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\LodePng">
+      <UniqueIdentifier>{8831b28e-4dcc-4060-96f6-94e9d66c3f73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\PngProcessor">
+      <UniqueIdentifier>{80389d52-6a91-4fed-ac59-ec2d874e4397}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\LodePng\头文件">
+      <UniqueIdentifier>{48493de3-ed2b-45d3-87d3-d8d2ed5947cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\LodePng\源文件">
+      <UniqueIdentifier>{77cea715-c32a-4ed1-b0ef-643530912c3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\PngProcessor\头文件">
+      <UniqueIdentifier>{9cc7f38e-fce8-479c-92fb-73299c033b8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\PngProcessor\源文件">
+      <UniqueIdentifier>{eadab39d-b4d8-43c8-ac50-1ac6be83d7b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\Other">
+      <UniqueIdentifier>{118cbf08-c79f-4eef-94ac-5349e19561b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExternalTool\Other\头文件">
+      <UniqueIdentifier>{4d3e61c6-0f0b-42d1-a870-ceb0de9a01ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{40506adb-d91a-4a21-9c03-83605c40739e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CORE\D3D12App.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\D3DMethods.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\DDSLoader.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\GeometryGenerator.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\LitTexMat.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\PerformanceTimer.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\RenderCore.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\UploadBuffer.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Principle\initAnimation.h">
+      <Filter>Frame\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Principle\Principle.h">
+      <Filter>Frame\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Principle\RawScript.h">
+      <Filter>Frame\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Principle\Scene.h">
+      <Filter>Frame\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\ModelData.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\ModelLoader.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Principle\DebugHelper.h">
+      <Filter>Frame\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\Camera.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\Graphics.h">
+      <Filter>Core2D\EditorUi\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\SpriteSheet.h">
+      <Filter>Core2D\EditorUi\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\MathInt.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\MathLib.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RandomGenerator.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RandomBase.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RandomSpecial.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RandomUniform.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\Interfaces.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\MathHelpTool.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Utilitys.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\button.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\Icontrols.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\imageBox.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\lable.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\panel.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\textBox.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\UICom_Manager.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\MeshGeometry.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\d3d12.h">
+      <Filter>Core\MicroSoft\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\d3dx12.h">
+      <Filter>Core\MicroSoft\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\DDSTextureLoader12.h">
+      <Filter>Core\MicroSoft\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\UICom_Ptr.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE2D\D2DUIdef.h">
+      <Filter>Core2D\EditorUi\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\MathPoint.h">
+      <Filter>Math\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\DxException.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\PMemoryAllocator.h">
+      <Filter>Memory\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\PMemoryPool.h">
+      <Filter>Memory\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Principle\clockTimer.h">
+      <Filter>Frame\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTool\lodepng.h">
+      <Filter>ExternalTool\LodePng\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTool\AdaptString.h">
+      <Filter>ExternalTool\Other\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTool\CppParallelAccelerator.h">
+      <Filter>ExternalTool\Other\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\CubeRenderObject.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTool\png.h">
+      <Filter>ExternalTool\PngProcessor\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTool\Image.h">
+      <Filter>ExternalTool\PngProcessor\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\ConfigLoader.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CORE\ShadowMapper.h">
+      <Filter>Core\Engine\头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CORE\D3D12App.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\D3DMethods.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\DDSLoader.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\GeometryGenerator.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\RenderCore.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Principle\initAnimation.cpp">
+      <Filter>Frame\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Principle\RawScript.cpp">
+      <Filter>Frame\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="blankWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\ModelLoader.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE2D\Graphics.cpp">
+      <Filter>Core2D\EditorUi\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE2D\SpriteSheet.cpp">
+      <Filter>Core2D\EditorUi\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\MathNum.h">
+      <Filter>Math\头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Utilitys.cpp">
+      <Filter>Math\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\Interfaces.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE2D\imageBox.cpp">
+      <Filter>Core2D\EditorUi\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE2D\Icontrols.cpp">
+      <Filter>Core2D\EditorUi\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\DDSTextureLoader12.cpp">
+      <Filter>Core\MicroSoft\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTool\lodepng.cpp">
+      <Filter>ExternalTool\LodePng\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\CubeRenderObject.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTool\png.cpp">
+      <Filter>ExternalTool\PngProcessor\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExternalTool\Image.cpp">
+      <Filter>ExternalTool\PngProcessor\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\ConfigLoader.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CORE\ShadowMapper.cpp">
+      <Filter>Core\Engine\源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\BlinnPhong.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\CookTorranceBRDF.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\illuminationModels.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\BezierTessellation.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\LitMatStruct.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Common.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="ClassDiagram.cd" />
+    <None Include="Shaders\BlinnPhongRetrofit.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+</Project>

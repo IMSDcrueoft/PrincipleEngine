@@ -1,0 +1,512 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="blankWindow" Collapsed="true" HideInheritanceLine="true">
+    <Position X="27.25" Y="12.75" Width="1.75" />
+    <InheritanceLine Type="D3D12App" IsHidden="true" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAEAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>blankWindow.cpp</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="clockTimer" Collapsed="true">
+    <Position X="16.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAACAAAACAAgAAAAAAAAAAAAgAAAAAAAAAEAAAA=</HashCode>
+      <FileName>Principle\clockTimer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DebugHelper" Collapsed="true">
+    <Position X="16.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIACAAAAAAAAAAAAAAAAgAgAACIAAAAAAAAAA=</HashCode>
+      <FileName>Principle\DebugHelper.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="initAnimation" Collapsed="true">
+    <Position X="14.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAgAQAAAAAQACAAAAAAAABAAiCAAI=</HashCode>
+      <FileName>Principle\initAnimation.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scene" Collapsed="true">
+    <Position X="14.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAEAAAgAAAAAAAQAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>Principle\Scene.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Camera">
+    <Position X="8.25" Y="3" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AICGCIBAFCAQENFAZAAEIACAwAACIgAggTFBQoAAhgI=</HashCode>
+      <FileName>CORE\Camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CubeRenderObject" Collapsed="true">
+    <Position X="14.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAgJQAEFAAIwIABAAAAEAAAAAAAAAIgIAEAAAI=</HashCode>
+      <FileName>CORE\CubeRenderObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D3D12App" HideInheritanceLine="true">
+    <Position X="26.75" Y="6.25" Width="2.75" />
+    <InheritanceLine Type="Win32MouseExtension" IsHidden="true" />
+    <InheritanceLine Type="Win32KeyStateExtension" IsHidden="true" />
+    <TypeIdentifier>
+      <HashCode>AAABEAIAEAIAARAAQQAAAAAAAAAWAAAAAIEoAAAAAAI=</HashCode>
+      <FileName>CORE\D3D12App.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D3DMethods" Collapsed="true">
+    <Position X="13.75" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>CAAAAgAQAAAAAAAEAAAEAAAAIAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>CORE\D3DMethods.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DxException" Collapsed="true">
+    <Position X="14.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAEAAAKBAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CORE\DxException.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GeometryGenerator" Collapsed="true">
+    <Position X="0.5" Y="12.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAgEAAQAAAAAAIAAQAAgAAAAAAAJAAAQAAAAAAAAA=</HashCode>
+      <FileName>CORE\GeometryGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Win32KeyStateExtension">
+    <Position X="25.5" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAQAAAAAAAAQAAAAAA=</HashCode>
+      <FileName>CORE\Interfaces.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Win32MouseExtension">
+    <Position X="27.5" Y="1.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAEAAAAAAAQAAAAAABAGAABAIAAAAAICAAA=</HashCode>
+      <FileName>CORE\Interfaces.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelData" Collapsed="true">
+    <Position X="1.75" Y="11" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CORE\ModelData.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelLoader" Collapsed="true">
+    <Position X="2.75" Y="12.25" Width="3" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>gAAIAAAACAAAAIAIAABIAAAAAgAAAAAAAAhAAAAAAAA=</HashCode>
+      <FileName>CORE\ModelLoader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PerformanceTimer">
+    <Position X="18.25" Y="2.75" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AgAAAAgAACIQBAAJAAAAAgAAAAAAAAUAIEAAAAAAQQA=</HashCode>
+      <FileName>CORE\PerformanceTimer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderCore">
+    <Position X="21.5" Y="5.25" Width="4.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>VDQIAQBFAEBMA1AKQoAaEqIAgIEQCAJOBAOkCgEETAs=</HashCode>
+      <FileName>CORE\RenderCore.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UploadBuffer&lt;T&gt;" Collapsed="true">
+    <Position X="13.75" Y="7.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAIAAAAAAIgAAAAAAAQAAAAAAAgUAgAAAAAAA=</HashCode>
+      <FileName>CORE\UploadBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MathHelpTool" Collapsed="true">
+    <Position X="9" Y="13.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIATAAAAAAIAACAQQIiAQAEAAAIEAAAgAEAAAAEAEA=</HashCode>
+      <FileName>Math\MathHelpTool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RandomGenerator" Collapsed="true">
+    <Position X="11.25" Y="13.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Math\RandomGenerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RandomBase" Collapsed="true">
+    <Position X="10.25" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAQAAAQAAAIAAAAAAAAAAIAAQAAAAAAAQ=</HashCode>
+      <FileName>Math\RandomBase.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RandomSpecial" Collapsed="true">
+    <Position X="10.25" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAIACIAAAAIACEAAAAgAgACgAAAAAAAg=</HashCode>
+      <FileName>Math\RandomSpecial.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RandomUniform" Collapsed="true">
+    <Position X="12.5" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAiCAAAAAAAABAAAAAAEAAAACAAAAAAACAACAAAA=</HashCode>
+      <FileName>Math\RandomUniform.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Graphics">
+    <Position X="6.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAQAIIgBAiAAIABgAAACAAAAJIBIEACAIAAEAA=</HashCode>
+      <FileName>CORE2D\Graphics.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SpriteSheet" Collapsed="true">
+    <Position X="4.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAACIECMABABAAgCIAACAAAAAAA=</HashCode>
+      <FileName>CORE2D\SpriteSheet.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Iallocator&lt;T&gt;" Collapsed="true">
+    <Position X="9.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAEAAAAAEAAIAAAEAAAAIAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Memory\PMemoryAllocator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PMemoryPool&lt;T&gt;" Collapsed="true">
+    <Position X="9.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAkAAAACEAAIAAQEgAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Memory\PMemoryAllocator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ialloc" Collapsed="true">
+    <Position X="3.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAACAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Memory\PMemoryPool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="new_deleteAlloc" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAACAACAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>Memory\PMemoryPool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PMemoryAlloc_Default" Collapsed="true">
+    <Position X="2.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACIAUAAAAAAQACAGCgFEBAIIAAAAAiAAADAAAQAhQA=</HashCode>
+      <FileName>Memory\PMemoryPool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PMemoryAlloc_PageTemporaryData" Collapsed="true">
+    <Position X="5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAACAEAAAAAEAIAACAAAABBUAAAAAA=</HashCode>
+      <FileName>Memory\PMemoryPool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PMemoryAlloc_InstanceData" Collapsed="true">
+    <Position X="7.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACACAAAAAAAAACAAAAAgAAAIAAAAAQABAAAAEAAE=</HashCode>
+      <FileName>Memory\PMemoryPool.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ImageProcessingTools" Collapsed="true">
+    <Position X="17.25" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQIIAIBEDAhAAIiBQCCAAIAEAgAJWAOCAACAABg=</HashCode>
+      <FileName>ExternalTool\Image.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PngProcessingTools" Collapsed="true">
+    <Position X="17.25" Y="1.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AqAAAAgABAAAAQApABAAAAAARAAAQAAEIAGGAAAAACA=</HashCode>
+      <FileName>ExternalTool\png.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdaptString" Collapsed="true">
+    <Position X="14.25" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ExternalTool\AdaptString.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CppParallelAccelerator" Collapsed="true">
+    <Position X="16.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAEQAAABAAAAAI=</HashCode>
+      <FileName>ExternalTool\CppParallelAccelerator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Principle::ObjectStateExtension" Collapsed="true">
+    <Position X="14.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAAAACAAAgAAAAAAAAA=</HashCode>
+      <FileName>Principle\RawScript.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Principle::RawScript" Collapsed="true">
+    <Position X="14.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAwCAAAAAAAAAQAAAAAAAAAAAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Principle\RawScript.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utilitys::Trigger" Collapsed="true">
+    <Position X="16.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAACAAAEAAAAAAAAAAAAAABCAAAAAA=</HashCode>
+      <FileName>Math\Utilitys.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::Button" Collapsed="true">
+    <Position X="4.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CORE2D\button.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::IcontrolEvent" Collapsed="true">
+    <Position X="2.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAIAAAAAAAQAAAAAAAQAAAg=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::IcontrolCommon" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAgAEAAAAAAAAAAEgAAAAAAAAAABEAA=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::Icontrols" Collapsed="true">
+    <Position X="2.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEBAAAAgAAAAAAAAAAAAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::UICom_Manager" Collapsed="true">
+    <Position X="4.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABABAQAQEAAMBEAAAAAAAAAAABAAAAAAgAAAAFAA=</HashCode>
+      <FileName>CORE2D\UICom_Manager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::ControlEvent" Collapsed="true">
+    <Position X="0.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAAAAAAQAAAIAABAIAAAAAAEAAEAABAAEg=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::ControlContainer" Collapsed="true">
+    <Position X="0.5" Y="10.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAIIAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::BackgroundAndBorder" Collapsed="true">
+    <Position X="4" Y="8.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAIEBAAAAAAAIAACIAAAAAAgYgAAgAAAAIAAAAAAo=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::BackgroundImage" Collapsed="true">
+    <Position X="0.5" Y="7.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAEAAAAAAAgIAgAAAAAAEAAAABAAAAIAAQAAAAA=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::ControlCommon" Collapsed="true">
+    <Position X="0.5" Y="8.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAABAAAgAAAACAACAAAAAA=</HashCode>
+      <FileName>CORE2D\Icontrols.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::ImageBox" Collapsed="true">
+    <Position X="2.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAgAABAAAAgiAEAAAAAIAEAAEgAQAAAACAAQBEAg=</HashCode>
+      <FileName>CORE2D\imageBox.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D2DUI::UICom_Ptr&lt;T&gt;" Collapsed="true">
+    <Position X="4.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAQBAAAAAAwAAAACAAAAAgAEgABAAAAA=</HashCode>
+      <FileName>CORE2D\UICom_Ptr.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Light" Collapsed="true">
+    <Position X="18.25" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAACAAAAAAgACAAAAAAIABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="BasicMaterial" Collapsed="true">
+    <Position X="18.25" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAIAAggAAAAAQAAAAAAEEAgQAIAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="AdvancedMaterial" Collapsed="true">
+    <Position X="18.25" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAgAAAAAAAAAAAAAAAAAAAAAAAAIAAAAABAAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MaterialData" Collapsed="true">
+    <Position X="16.5" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAQEEAAQAIAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="AdvancedMaterialData" Collapsed="true">
+    <Position X="16.5" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAgAAAAAAAAAAAAQEEAAQAIAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="BasicMaterialConstants" Collapsed="true">
+    <Position X="16.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEEAAQAIAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="AdvancedMaterialConstants" Collapsed="true">
+    <Position X="16.5" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Texture" Collapsed="true">
+    <Position X="18.25" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAQAAAAAAAABQAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>CORE\LitTexMat.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="SubmeshGeometry&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="14.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAQQCAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>CORE\MeshGeometry.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MeshGeometry&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="13.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>QAQAAAAkAACIAAAAAAAACAQAAAAARAAICAAhAAEAAAE=</HashCode>
+      <FileName>CORE\MeshGeometry.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="RGBAColor_8i" Collapsed="true">
+    <Position X="6.5" Y="15" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>ExternalTool\Image.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="TextureData" Collapsed="true">
+    <Position X="16.5" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAACAAQAQAUAAAAEACEAEQgAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ExternalTool\Image.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="RGBAColor_32f" Collapsed="true">
+    <Position X="6.5" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAgAAQAAEAEAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>ExternalTool\Image.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MathLib::PMMATRIXD" Collapsed="true">
+    <Position X="6.5" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Math\MathLib.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MathLib::PMVECTOR4D" Collapsed="true">
+    <Position X="6.5" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQAAAAAAAQAAAAAgAAAAAAA=</HashCode>
+      <FileName>Math\MathLib.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MathLib::PMUINT32X4" Collapsed="true">
+    <Position X="6.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAAQAAAAEAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Math\MathInt.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="MathLib::Point&lt;T, alignSize&gt;" Collapsed="true">
+    <Position X="6.5" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAQAAAAAAAAAAAABgAAAAAAA=</HashCode>
+      <FileName>Math\MathPoint.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="CubeMapFace" Collapsed="true">
+    <Position X="14.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>CORE\CubeRenderObject.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Principle::State" Collapsed="true">
+    <Position X="14.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAAAAAAAAAEAAAAAAAAAAAAAAIAAAAAg=</HashCode>
+      <FileName>Principle\RawScript.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
