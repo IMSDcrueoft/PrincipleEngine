@@ -291,6 +291,7 @@ public:
 		TextureData& result,
 		void (*filteringMethod)(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn));
 	static bool PixelToRGB3x3(TextureData& input, TextureData& result, const float32_t& brightness = 0.0f);
+	static bool Encryption_xor_reverse(TextureData& inputOutput, const uint32_t& key = 0b1110'1101'1011'1001'0101'1010'0010'0100);
 };
 
 

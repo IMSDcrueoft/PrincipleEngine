@@ -14,9 +14,9 @@ bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureDa
 	auto& resultRGBA = result.getRGBA_uint8();
 	resultRGBA.resize(static_cast<size_t>(result.width) * result.height);
 
-	float32_t center    = CenterWeight * 0.250f;
+	float32_t center = CenterWeight * 0.250f;
 	float32_t outerNear = (1.0f - CenterWeight) * 0.0910628715f;
-	float32_t outerFar  = (1.0f - CenterWeight) * 0.0678742569f;
+	float32_t outerFar = (1.0f - CenterWeight) * 0.0678742569f;
 
 	const float32_t kernel[4][4]
 	{
@@ -26,7 +26,7 @@ bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureDa
 		{outerFar ,outerNear,outerNear,outerFar }
 	};
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &WeightEffact,&kernel, &scaleIndex](uint32_t Y){
+	parallel::parallel_for(0u, result.height, [&result, &input, &WeightEffact, &kernel, &scaleIndex](uint32_t Y) {
 
 		auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
 		{
@@ -55,24 +55,24 @@ bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureDa
 			//Unrolling loops to enhance performance
 
 			rgba_f1 += RGBAColor_32f(input(Column + (-1), Row + (-1)), kernel[0][0]);
-			rgba_f1 += RGBAColor_32f(input(Column + ( 0), Row + (-1)), kernel[0][1]);
-			rgba_f1 += RGBAColor_32f(input(Column + (-1), Row + ( 0)), kernel[1][0]);
-			rgba_f1 += RGBAColor_32f(input(Column + ( 0), Row + ( 0)), kernel[1][1]);
+			rgba_f1 += RGBAColor_32f(input(Column + (0), Row + (-1)), kernel[0][1]);
+			rgba_f1 += RGBAColor_32f(input(Column + (-1), Row + (0)), kernel[1][0]);
+			rgba_f1 += RGBAColor_32f(input(Column + (0), Row + (0)), kernel[1][1]);
 
-			rgba_f2 += RGBAColor_32f(input(Column + ( 1), Row + (-1)), kernel[0][2]);
-			rgba_f2 += RGBAColor_32f(input(Column + ( 2), Row + (-1)), kernel[0][3]);
-			rgba_f2 += RGBAColor_32f(input(Column + ( 1), Row + ( 0)), kernel[1][2]);
-			rgba_f2 += RGBAColor_32f(input(Column + ( 2), Row + ( 0)), kernel[1][3]);
+			rgba_f2 += RGBAColor_32f(input(Column + (1), Row + (-1)), kernel[0][2]);
+			rgba_f2 += RGBAColor_32f(input(Column + (2), Row + (-1)), kernel[0][3]);
+			rgba_f2 += RGBAColor_32f(input(Column + (1), Row + (0)), kernel[1][2]);
+			rgba_f2 += RGBAColor_32f(input(Column + (2), Row + (0)), kernel[1][3]);
 
-			rgba_f3 += RGBAColor_32f(input(Column + (-1), Row + ( 1)), kernel[2][0]);
-			rgba_f3 += RGBAColor_32f(input(Column + ( 0), Row + ( 1)), kernel[2][1]);
-			rgba_f3 += RGBAColor_32f(input(Column + (-1), Row + ( 2)), kernel[3][0]);
-			rgba_f3 += RGBAColor_32f(input(Column + ( 0), Row + ( 2)), kernel[3][1]);
+			rgba_f3 += RGBAColor_32f(input(Column + (-1), Row + (1)), kernel[2][0]);
+			rgba_f3 += RGBAColor_32f(input(Column + (0), Row + (1)), kernel[2][1]);
+			rgba_f3 += RGBAColor_32f(input(Column + (-1), Row + (2)), kernel[3][0]);
+			rgba_f3 += RGBAColor_32f(input(Column + (0), Row + (2)), kernel[3][1]);
 
-			rgba_f4 += RGBAColor_32f(input(Column + ( 1), Row + ( 1)), kernel[2][2]);
-			rgba_f4 += RGBAColor_32f(input(Column + ( 2), Row + ( 1)), kernel[2][3]);
-			rgba_f4 += RGBAColor_32f(input(Column + ( 1), Row + ( 2)), kernel[3][2]);
-			rgba_f4 += RGBAColor_32f(input(Column + ( 2), Row + ( 2)), kernel[3][3]);
+			rgba_f4 += RGBAColor_32f(input(Column + (1), Row + (1)), kernel[2][2]);
+			rgba_f4 += RGBAColor_32f(input(Column + (2), Row + (1)), kernel[2][3]);
+			rgba_f4 += RGBAColor_32f(input(Column + (1), Row + (2)), kernel[3][2]);
+			rgba_f4 += RGBAColor_32f(input(Column + (2), Row + (2)), kernel[3][3]);
 
 			rgba_f1 *= weight.X;
 			rgba_f2 *= weight.Y;
@@ -133,9 +133,9 @@ bool ImageProcessingTools::Zoom_CubicConvolutionSampling4x4(TextureData& input, 
 			kernelX[3] = kernelX[0];
 
 			kernelY[0] = floatVec4(Formula(a, -1.0f - dy));
-			kernelY[1] = floatVec4(Formula(a,  0.0f - dy));
-			kernelY[2] = floatVec4(Formula(a,  1.0f - dy));
-			kernelY[3] = floatVec4(Formula(a,  2.0f - dy));
+			kernelY[1] = floatVec4(Formula(a, 0.0f - dy));
+			kernelY[2] = floatVec4(Formula(a, 1.0f - dy));
+			kernelY[3] = floatVec4(Formula(a, 2.0f - dy));
 
 			kernelX[0] *= kernelY[0];
 			kernelX[1] *= kernelY[1];
@@ -148,24 +148,24 @@ bool ImageProcessingTools::Zoom_CubicConvolutionSampling4x4(TextureData& input, 
 			RGBAColor_32f rgba_f(0.0f, 0.0f, 0.0f, 0.0f);
 
 			rgba_f += RGBAColor_32f(input(Column + (-1), Row + (-1)), kernel[0][0]);
-			rgba_f += RGBAColor_32f(input(Column + ( 0), Row + (-1)), kernel[0][1]);
-			rgba_f += RGBAColor_32f(input(Column + ( 1), Row + (-1)), kernel[0][2]);
-			rgba_f += RGBAColor_32f(input(Column + ( 2), Row + (-1)), kernel[0][3]);
+			rgba_f += RGBAColor_32f(input(Column + (0), Row + (-1)), kernel[0][1]);
+			rgba_f += RGBAColor_32f(input(Column + (1), Row + (-1)), kernel[0][2]);
+			rgba_f += RGBAColor_32f(input(Column + (2), Row + (-1)), kernel[0][3]);
 
-			rgba_f += RGBAColor_32f(input(Column + (-1), Row + ( 0)), kernel[1][0]);
-			rgba_f += RGBAColor_32f(input(Column + ( 0), Row + ( 0)), kernel[1][1]);
-			rgba_f += RGBAColor_32f(input(Column + ( 1), Row + ( 0)), kernel[1][2]);
-			rgba_f += RGBAColor_32f(input(Column + ( 2), Row + ( 0)), kernel[1][3]);
+			rgba_f += RGBAColor_32f(input(Column + (-1), Row + (0)), kernel[1][0]);
+			rgba_f += RGBAColor_32f(input(Column + (0), Row + (0)), kernel[1][1]);
+			rgba_f += RGBAColor_32f(input(Column + (1), Row + (0)), kernel[1][2]);
+			rgba_f += RGBAColor_32f(input(Column + (2), Row + (0)), kernel[1][3]);
 
-			rgba_f += RGBAColor_32f(input(Column + (-1), Row + ( 1)), kernel[2][0]);
-			rgba_f += RGBAColor_32f(input(Column + ( 0), Row + ( 1)), kernel[2][1]);
-			rgba_f += RGBAColor_32f(input(Column + ( 1), Row + ( 1)), kernel[2][2]);
-			rgba_f += RGBAColor_32f(input(Column + ( 2), Row + ( 1)), kernel[2][3]);
+			rgba_f += RGBAColor_32f(input(Column + (-1), Row + (1)), kernel[2][0]);
+			rgba_f += RGBAColor_32f(input(Column + (0), Row + (1)), kernel[2][1]);
+			rgba_f += RGBAColor_32f(input(Column + (1), Row + (1)), kernel[2][2]);
+			rgba_f += RGBAColor_32f(input(Column + (2), Row + (1)), kernel[2][3]);
 
-			rgba_f += RGBAColor_32f(input(Column + (-1), Row + ( 2)), kernel[3][0]);
-			rgba_f += RGBAColor_32f(input(Column + ( 0), Row + ( 2)), kernel[3][1]);
-			rgba_f += RGBAColor_32f(input(Column + ( 1), Row + ( 2)), kernel[3][2]);
-			rgba_f += RGBAColor_32f(input(Column + ( 2), Row + ( 2)), kernel[3][3]);
+			rgba_f += RGBAColor_32f(input(Column + (-1), Row + (2)), kernel[3][0]);
+			rgba_f += RGBAColor_32f(input(Column + (0), Row + (2)), kernel[3][1]);
+			rgba_f += RGBAColor_32f(input(Column + (1), Row + (2)), kernel[3][2]);
+			rgba_f += RGBAColor_32f(input(Column + (2), Row + (2)), kernel[3][3]);
 
 			result(X, Y) = rgba_f.toRGBAColor_8i();
 		}
@@ -174,7 +174,7 @@ bool ImageProcessingTools::Zoom_CubicConvolutionSampling4x4(TextureData& input, 
 	return true;
 }
 
-bool ImageProcessingTools::SharpenLaplace3x3(TextureData& input, TextureData& result,const float32_t& strength)
+bool ImageProcessingTools::SharpenLaplace3x3(TextureData& input, TextureData& result, const float32_t& strength)
 {
 	if (input.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
 		return false;
@@ -188,15 +188,15 @@ bool ImageProcessingTools::SharpenLaplace3x3(TextureData& input, TextureData& re
 	const float32_t factor = -0.01f * strength;
 	constexpr float32_t oneHalfRoot = 0.70710678f;
 	constexpr float32_t oneHalfRootPlusOne = oneHalfRoot + 1.0f;
-	
+
 	/*
-		kernel = 
+		kernel =
 		{
 		  -sqrt(0.5) -1 -sqrt(0.5)
 		  -1       -outers	-1
 		  -sqrt(0.5) -1 -sqrt(0.5)
 		}
-	
+
 	*/
 
 	const float32_t& outerNear = factor;
@@ -247,7 +247,7 @@ bool ImageProcessingTools::SharpenGaussLaplace5x5(TextureData& input, TextureDat
 
 	float32_t factor = -0.002f * strength;
 	/*
-		kernel = 
+		kernel =
 		{
 		-2 -4 -4 -4 -2
 		-4  0  8  0 -4
@@ -256,14 +256,14 @@ bool ImageProcessingTools::SharpenGaussLaplace5x5(TextureData& input, TextureDat
 		-2 -4 -4 -4 -2
 		}
 	*/
-	
-	const float32_t &outerl2Far = factor;
+
+	const float32_t& outerl2Far = factor;
 	const float32_t outerl2Near = 2.0f * factor;
 	const float32_t outerl1Near = -4.0f * factor;
 	//const float32_t outerl1Far = 0.0f;
 	const float32_t center = 1.0f - 12.0f * factor;
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &outerl2Far, &outerl2Near,&outerl1Near, &center](uint32_t Y) {
+	parallel::parallel_for(0u, result.height, [&result, &input, &outerl2Far, &outerl2Near, &outerl1Near, &center](uint32_t Y) {
 
 		for (auto X = 0u; X < result.width; ++X)
 		{
@@ -602,15 +602,15 @@ bool ImageProcessingTools::SobelEdgeEnhancement(TextureData& input, TextureData&
 			RGBAColor_32f Gy(0.0f, 0.0f, 0.0f, 0.0f);
 
 			Gx += RGBAColor_32f(input(X - 1, Y - 1), -1.0f);
-			Gx += RGBAColor_32f(input(X + 1, Y - 1),  1.0f);
+			Gx += RGBAColor_32f(input(X + 1, Y - 1), 1.0f);
 			Gx += RGBAColor_32f(input(X - 1, Y + 0), -2.0f);
-			Gx += RGBAColor_32f(input(X + 1, Y + 0),  2.0f);
+			Gx += RGBAColor_32f(input(X + 1, Y + 0), 2.0f);
 			Gx += RGBAColor_32f(input(X - 1, Y + 1), -1.0f);
-			Gx += RGBAColor_32f(input(X + 1, Y + 1),  1.0f);
+			Gx += RGBAColor_32f(input(X + 1, Y + 1), 1.0f);
 
-			Gy += RGBAColor_32f(input(X - 1, Y - 1),  1.0f);
-			Gy += RGBAColor_32f(input(X + 0, Y - 1),  2.0f);
-			Gy += RGBAColor_32f(input(X + 1, Y - 1),  1.0f);
+			Gy += RGBAColor_32f(input(X - 1, Y - 1), 1.0f);
+			Gy += RGBAColor_32f(input(X + 0, Y - 1), 2.0f);
+			Gy += RGBAColor_32f(input(X + 1, Y - 1), 1.0f);
 			Gy += RGBAColor_32f(input(X - 1, Y + 1), -1.0f);
 			Gy += RGBAColor_32f(input(X + 0, Y + 1), -2.0f);
 			Gy += RGBAColor_32f(input(X + 1, Y + 1), -1.0f);
@@ -735,17 +735,15 @@ bool ImageProcessingTools::MixedPictures(TextureData& inputOutside, TextureData&
 
 bool ImageProcessingTools::PixelToRGB3x3(TextureData& input, TextureData& result, const float32_t& brightness)
 {
-	if (input.image.size() == 0)
+	if (input.getRGBA_uint8().size() == 0u)
 		return false;
+
+	input.clearImage();
 
 	result.width = input.width * 3u;
 	result.height = input.height * 3u;
 
-	//must load first
-	input.getRGBA_uint8();
-	auto& resultRGBA = result.getRGBA_uint8();
-
-	resultRGBA.resize(result.width * result.height);
+	result.getRGBA_uint8().resize(static_cast<size_t>(result.width) * result.height);
 
 	parallel::parallel_for(0u, input.height, [&input, &result, &brightness](uint32_t Y)
 		{
@@ -770,5 +768,34 @@ bool ImageProcessingTools::PixelToRGB3x3(TextureData& input, TextureData& result
 			std::copy(reinterpret_cast<byte*>(&result(0, Y * 3)), reinterpret_cast<byte*>(&result(0, Y * 3 + 1)), reinterpret_cast<byte*>(&result(0, Y * 3 + 2)));
 		});
 
+	return true;
+}
+
+bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, const uint32_t& key)
+{
+	if (inputOutput.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
+		return false;
+
+	//not need this time
+	inputOutput.clearImage();
+
+	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, key](uint32_t Y) {
+		uint32_t tempKey = (key << (Y % 16)) | (key >> (32 - (Y % 16)));
+
+		for (auto X = 0u; X < inputOutput.width; ++X)
+		{
+			auto& color = inputOutput(X, Y);
+			color.R ^= tempKey;
+			color.G ^= tempKey >> 8;
+			color.B ^= tempKey >> 16;
+
+			tempKey = ((tempKey << (X % 16)) | (tempKey >> (32 - (X % 16))));
+
+			if ((X + Y) % 2 == 0) {
+				ImageProcessingTools::ReverseColor(color);
+			}
+		}
+
+		});
 	return true;
 }

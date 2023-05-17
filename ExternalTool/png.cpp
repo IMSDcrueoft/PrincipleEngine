@@ -110,6 +110,7 @@ void PngProcessingTools::help()
 		<< "[     Cut horizon    ]: C     \n"
 		<< "[       Mosaic       ]: m     \n"
 		<< "[   Mixed Pictures   ]: M     \n"
+		<< "[  (En-De)cryption   ]: e or E\n"
 		<< '\n'
 		<< "Input Sample-->\n"
 		<< "./pngProcessor.exe filename.png z[default zoom] 1.0[zoom ratio:DF] 0.5[center weight:DF] 2[Exponent:DF]\n"
@@ -197,6 +198,9 @@ void PngProcessingTools::help()
 		<< "./pngProcessor.exe filename.png C[cut horizon] 1024[Vertical Interval:DF]\n"
 		<< "[cut horizon]\n"
 		<< "[Vertical Interval(>0)]"
+		<< "./pngProcessor.exe filename.png e[Encryption] 1234567[excrtption key:DF]\n"
+		<< "[Encryption]\n"
+		<< "[excrtption key(>0)]"
 		<< std::endl;
 }
 
@@ -207,6 +211,18 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	char mode = (char)Mode::unknown;
 	clockTimer timer;
 	std::istringstream iss;
+
+	float32_t param1 = 1.0f;
+	float32_t param2 = 0.64f;
+	float32_t param3 = 1.0f;
+	uint32_t exponent = (uint32_t)ImageProcessingTools::Exponent::square;
+
+	uint32_t interval_horizontal = 1024u;
+	uint32_t interval_vertical = 1024u;
+
+	int32_t radius = 1;
+
+	uint32_t key = 0u;
 
 	timer.TimerStart();
 
@@ -225,23 +241,21 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 
 	if (argCount == 2)
 	{
-		std::cout << "Too few parameters.\n";
+		//special func
+		std::cout << "Too few parameters!\n";
 		help();
+		std::cout << "try run Encryption\n";
+		PngProcessingTools::Encryption_xor_reverseProgram(key, pngfile);
+
+		timer.TimerStop();
+
+		std::cout << "End processing . . .\n"
+			<< "Time used:" << timer.getTime() << "(second).\n" << std::endl;
 		exit(0);
 	}
 
 	iss.str(argValues[2]);
 	iss >> mode;
-
-	float32_t param1 = 1.0f;
-	float32_t param2 = 0.64f;
-	float32_t param3 = 1.0f;
-	uint32_t exponent = (uint32_t)ImageProcessingTools::Exponent::square;
-
-	uint32_t interval_horizontal = 1024u;
-	uint32_t interval_vertical = 1024u;
-
-	int32_t radius = 1;
 
 	auto GetParam = [&iss, &argValues](const uint32_t& id, auto& target)
 	{
@@ -522,7 +536,15 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	case (int)Mode::InterlacedScanning:
 		PngProcessingTools::InterlacedScanningProgram(pngfile);
 		break;
+	case (int)Mode::encryption:
+	case (int)Mode::Encryption:
+		if (argCount > 3)
+		{
+			GetParam(3, key);
+		}
 
+		PngProcessingTools::Encryption_xor_reverseProgram(key, pngfile);
+		break;
 	default:
 		std::cout << "Error:unknown working mode.\n";
 		help();
@@ -597,7 +619,7 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -643,7 +665,7 @@ void PngProcessingTools::zoomProgramCubicConvolution(float32_t& zoomRatio, std::
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -682,7 +704,7 @@ void PngProcessingTools::laplaceSharpenProgram(float32_t& sharpenRatio, std::fil
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -721,7 +743,7 @@ void PngProcessingTools::gaussLaplaceSharpenProgram(float32_t& sharpenRatio, std
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -758,7 +780,7 @@ void PngProcessingTools::hdrToneMappingColorProgram(float32_t& lumRatio, std::fi
 
 		exportFile(image, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -790,7 +812,7 @@ void PngProcessingTools::reverseColorProgram(std::filesystem::path& pngfile)
 
 		exportFile(image, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -910,7 +932,7 @@ void PngProcessingTools::vividnessAdjustmentColorProgram(float32_t& VividRatio, 
 
 		exportFile(image, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -947,7 +969,7 @@ void PngProcessingTools::natualvividnessAdjustmentColorProgram(float32_t& VividR
 
 		exportFile(image, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1260,7 +1282,7 @@ void PngProcessingTools::surfaceBlurfilterProgram(float32_t& threshold, std::fil
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1316,7 +1338,7 @@ void PngProcessingTools::sobelEdgeEnhancementProgram(float32_t& strength, std::f
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1353,7 +1375,7 @@ void PngProcessingTools::mosaicPixelationProgram(uint32_t& sideLength, std::file
 
 		exportFile(image, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1452,7 +1474,7 @@ void PngProcessingTools::pixelToRGB8_3x3Program(float32_t& brightness, std::file
 
 		exportFile(result, resultname);
 #endif
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1460,7 +1482,7 @@ void PngProcessingTools::pixelToRGB8_3x3Program(float32_t& brightness, std::file
 	}
 }
 
-bool PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfile)
+void PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfile)
 {
 	std::cout << "Interlaced Scanning:\n"
 		<< "Start processing . . ." << std::endl;
@@ -1477,18 +1499,18 @@ bool PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfil
 			for (size_t X = 0u; X < image.width; ++X)
 			{
 #if LITTLE_ENDIAN
-				*((data + byteOffset * Y) + (X << 2u))     = 0x00;
+				* ((data + byteOffset * Y) + (X << 2u)) = 0x00;
 				*((data + byteOffset * Y) + (X << 2u) + 1) = 0x00;
 				*((data + byteOffset * Y) + (X << 2u) + 2) = 0x00;
 				*((data + byteOffset * Y) + (X << 2u) + 3) = 0xFF;
 #else
-				* ((data + byteOffset * Y) + (X << 2u))    = 0xFF;
+				* ((data + byteOffset * Y) + (X << 2u)) = 0xFF;
 				*((data + byteOffset * Y) + (X << 2u) + 1) = 0x00;
 				*((data + byteOffset * Y) + (X << 2u) + 2) = 0x00;
 				*((data + byteOffset * Y) + (X << 2u) + 3) = 0x00;
 #endif
 			}
-		}
+}
 
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
@@ -1497,6 +1519,40 @@ bool PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfil
 
 		exportFile(image.image.data(), image.width, image.height, resultname);
 	}
+	else
+	{
+		std::cout << "Something wrong in convert." << std::endl;
+		exit(0);
+	}
+}
+
+void PngProcessingTools::Encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
+{
+	std::cout << "Encryption:\n"
+		<< "Start processing . . ." << std::endl;
+
+	TextureData image;
+	importFile(image, pngfile);
+
+	bool useDefaultXorKey = ((xorKey == 0) || (xorKey == 0xFF'FF'FF'FF));
+
+	if (useDefaultXorKey ? ImageProcessingTools::Encryption_xor_reverse(image) : ImageProcessingTools::Encryption_xor_reverse(image, xorKey))
+	{
+		std::wstring resultname;
+		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
+			.append(L"_encryption_key_").append(useDefaultXorKey ? L"default" : std::to_wstring(xorKey))
+			.append(pngfile.extension());
+
+#if LITTLE_ENDIAN
+		exportFile(reinterpret_cast<byte*>(image.getRGBA_uint8().data()), image.width, image.height, resultname);
+#else
+		//load result into stream to save to file
+		image.loadRGBAtoByteStream();
+		image.clearRGBA_uint8();
+
+		exportFile(image, resultname);
+#endif
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
