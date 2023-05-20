@@ -245,7 +245,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		std::cout << "Too few parameters!\n";
 		help();
 		std::cout << "try run Encryption\n";
-		PngProcessingTools::Encryption_xor_reverseProgram(key, pngfile);
+		PngProcessingTools::encryption_xor_reverseProgram(key, pngfile);
 
 		timer.TimerStop();
 
@@ -534,7 +534,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		PngProcessingTools::pixelToRGB8_3x3Program(param1, pngfile);
 		break;
 	case (int)Mode::InterlacedScanning:
-		PngProcessingTools::InterlacedScanningProgram(pngfile);
+		PngProcessingTools::interlacedScanningProgram(pngfile);
 		break;
 	case (int)Mode::encryption:
 	case (int)Mode::Encryption:
@@ -543,7 +543,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 			GetParam(3, key);
 		}
 
-		PngProcessingTools::Encryption_xor_reverseProgram(key, pngfile);
+		PngProcessingTools::encryption_xor_reverseProgram(key, pngfile);
 		break;
 	default:
 		std::cout << "Error:unknown working mode.\n";
@@ -1482,7 +1482,7 @@ void PngProcessingTools::pixelToRGB8_3x3Program(float32_t& brightness, std::file
 	}
 }
 
-void PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfile)
+void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfile)
 {
 	std::cout << "Interlaced Scanning:\n"
 		<< "Start processing . . ." << std::endl;
@@ -1526,7 +1526,7 @@ void PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfil
 	}
 }
 
-void PngProcessingTools::Encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
+void PngProcessingTools::encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
 {
 	std::cout << "Encryption:\n"
 		<< "Start processing . . ." << std::endl;
