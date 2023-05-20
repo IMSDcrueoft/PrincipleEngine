@@ -22,7 +22,7 @@ if you use this software In a product, the confirmation in the product documenta
 so you should also comply with the requirements of its header declaration
 */
 
-#include"png.h"
+#include "png.h"
 
 void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pngfile)
 {
@@ -102,7 +102,8 @@ void PngProcessingTools::help()
 		<< "[    Binarization    ]: b or B\n"
 		<< "[  Pixel to RGB 3x3  ]: p     \n"
 		<< "[   Quaternization   ]: q or Q\n"
-		<< "[ Hexadecimalization ]: h or H\n"
+		<< "[ Hexadecimalization ]: h     \n"
+		<< "[   HSL Adjustment   ]: H     \n"
 		<< "[Interlaced Scanning ]: i     \n"
 		<< "[Vividness Adjustment]: v     \n"
 		<< "[ Natual Vivid Adjust]: V     \n"
@@ -149,6 +150,12 @@ void PngProcessingTools::help()
 		<< "./pngProcessor.exe filename.png h[hexadecimalization]\n"
 		<< "[hexadecimalization]\n"
 		<< '\n'
+		<< "./pngProcessor.exe filename.png H[HSL Adjustment] 0[hue change:DF] 1.05[saturate ratio:DF] 0.9[lightness ratio]\n"
+		<< "[HSL Adjustment]\n"
+		<< "[hue change(from -360.0 to 360.0)]\n"
+		<< "[saturate ratio(>=0)]\n"
+		<< "[lightness ratio(>=0)]\n"
+		<< '\n'
 		<< "./pngProcessor.exe filename.png i[Interlaced Scanning]\n"
 		<< "[Interlaced Scanning]\n"
 		<< '\n'
@@ -175,7 +182,7 @@ void PngProcessingTools::help()
 		<< "[surface blur filter]\n"
 		<< "[thresholdMix(from 0 to 1)]\n"
 		<< "[thresholdMax(from 0 to 1)]\n"
-		<< "[Edge strength(from 0.05 to 10)]"
+		<< "[Edge strength(from 0.05 to 10)]\n"
 		<< '\n'
 		<< "./pngProcessor.exe filename.png F[surface blur filter] 0.5[threshold:DF] 2[radius:DF]\n"
 		<< "[surface blur filter]\n"
@@ -245,7 +252,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		std::cout << "Too few parameters!\n";
 		help();
 		std::cout << "try run Encryption\n";
-		PngProcessingTools::Encryption_xor_reverseProgram(key, pngfile);
+		PngProcessingTools::encryption_xor_reverseProgram(key, pngfile);
 
 		timer.TimerStop();
 
@@ -424,10 +431,30 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		break;
 
 	case (int)Mode::hexadecimalization:
-	case (int)Mode::Hexadecimalization:
 		PngProcessingTools::hexadecimalizationColorProgram(pngfile);
 		break;
+	case (int)Mode::HSLAdjustment:
+		param1 = 0.0f;
+		param2 = 1.0f;
+		param3 = 1.0f;
 
+		if (argCount > 3)
+		{
+			GetParam(3, param1);
+
+			if (argCount > 4)
+			{
+				GetParam(4, param2);
+
+				if (argCount > 5)
+				{
+					GetParam(5, param3);
+				}
+			}
+		}
+
+		PngProcessingTools::hslAdjustMentProgram(param1, param2, param3, pngfile);
+		break;
 	case (int)Mode::cut:
 		if (argCount > 3)
 		{
@@ -534,7 +561,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		PngProcessingTools::pixelToRGB8_3x3Program(param1, pngfile);
 		break;
 	case (int)Mode::InterlacedScanning:
-		PngProcessingTools::InterlacedScanningProgram(pngfile);
+		PngProcessingTools::interlacedScanningProgram(pngfile);
 		break;
 	case (int)Mode::encryption:
 	case (int)Mode::Encryption:
@@ -543,7 +570,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 			GetParam(3, key);
 		}
 
-		PngProcessingTools::Encryption_xor_reverseProgram(key, pngfile);
+		PngProcessingTools::encryption_xor_reverseProgram(key, pngfile);
 		break;
 	default:
 		std::cout << "Error:unknown working mode.\n";
@@ -1482,7 +1509,7 @@ void PngProcessingTools::pixelToRGB8_3x3Program(float32_t& brightness, std::file
 	}
 }
 
-void PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfile)
+void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfile)
 {
 	std::cout << "Interlaced Scanning:\n"
 		<< "Start processing . . ." << std::endl;
@@ -1526,7 +1553,7 @@ void PngProcessingTools::InterlacedScanningProgram(std::filesystem::path& pngfil
 	}
 }
 
-void PngProcessingTools::Encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
+void PngProcessingTools::encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
 {
 	std::cout << "Encryption:\n"
 		<< "Start processing . . ." << std::endl;
@@ -1553,6 +1580,45 @@ void PngProcessingTools::Encryption_xor_reverseProgram(uint32_t& xorKey, std::fi
 		exportFile(image, resultname);
 #endif
 }
+	else
+	{
+		std::cout << "Something wrong in convert." << std::endl;
+		exit(0);
+	}
+}
+
+void PngProcessingTools::hslAdjustMentProgram(float32_t& hueChange, float32_t& saturationRatio, float32_t& lightnessRatio, std::filesystem::path& pngfile)
+{
+	std::cout << "HSL Adjustment:\n"
+		<< "Input factors:" << " H:" << hueChange << ",S:" << saturationRatio << ",L:" << lightnessRatio << std::endl;
+
+	Clamp(hueChange, -360.0f, 360.0f);
+	saturationRatio = Max(saturationRatio, 0.0f);
+	lightnessRatio = Max(lightnessRatio, 0.0f);
+
+	std::cout << "Adoption Vivid factor:" << " H:" << hueChange << ",S:" << saturationRatio << ",L:" << lightnessRatio << "\n"
+		<< "Start processing . . ." << std::endl;
+
+	TextureData image;
+	importFile(image, pngfile);
+
+	if (ImageProcessingTools::HSLAdjustment(image, hueChange, saturationRatio, lightnessRatio))
+	{
+		std::wstring resultname;
+		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
+			.append(L"_hsl_h_").append(std::to_wstring(hueChange)).append(L"_s_").append(std::to_wstring(saturationRatio)).append(L"_l_").append(std::to_wstring(lightnessRatio))
+			.append(pngfile.extension());
+
+#if LITTLE_ENDIAN
+		exportFile(reinterpret_cast<byte*>(image.getRGBA_uint8().data()), image.width, image.height, resultname);
+#else
+		//load result into stream to save to file
+		image.loadRGBAtoByteStream();
+		image.clearRGBA_uint8();
+
+		exportFile(image, resultname);
+#endif
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;

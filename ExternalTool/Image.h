@@ -33,24 +33,6 @@ namespace parallel = concurrency;
 using parallel = CppParallelAccelerator;
 #endif //PARALLELISM
 
-/*
-#define Clamp(val,min,max)									                                      \
-{                                                                                                 \
-	assert((min) < (max) && "wrong! min is larger than max in Clamp.");                           \
-                                                                                                  \
-	if((val) < (min))                                                                             \
-		(val) = (min);                                                                            \
-	else                                                                                          \
-	if((val) > (max))                                                                             \
-		(val) = (max);                                                                            \
-}
-
-#define Lerp(val1,val2,weight)	                                                                  \
-{								                                                                  \
-	assert((0.0f <= (weight) && (weight)<=1.0f) && "wrong! weight in lerp out of range[0,1].");   \
-	(val1) += (weight) * ((val2) - (val1));                                                       \
-}
-*/
 using STR = char*;
 using CSTR = const char*;
 using WSTR = wchar_t*;
@@ -62,32 +44,35 @@ using float32_t = float;
 using float64_t = double;
 
 static constexpr float32_t pi = 3.1415926f;
+static constexpr float32_t degToRad = pi / 180.0f;
+static constexpr float32_t radToDeg = 180.0f / pi;
 static constexpr float32_t maxColorPix = 255.0f;
 static constexpr float32_t ColorPixTofloat = (1.0f / maxColorPix);
 
-auto Min = [](const auto& left, const auto& right)
+//v param count max min
+template<typename T>
+const T& Min(const T& first, const T& next)
 {
-	if (left < right)
-	{
-		return left;
-	}
-	else
-	{
-		return right;
-	}
-};
+	return (first < next) ? first : next;
+}
 
-auto Max = [](const auto& left, const auto& right)
+template<typename T, typename ...Types>
+const T& Min(const T& first, const Types& ...args)
 {
-	if (left > right)
-	{
-		return left;
-	}
-	else
-	{
-		return right;
-	}
-};
+	return Min(first, Min(args...));
+}
+
+template<typename T>
+const T& Max(const T& first, const T& next)
+{
+	return (first > next) ? first : next;
+}
+
+template<typename T, typename ...Types>
+const T& Max(const T& first, const Types& ...args)
+{
+	return Max(first, Max(args...));
+}
 
 auto Clamp = [](auto& val, const auto& min, const auto& max)
 {
@@ -182,6 +167,14 @@ struct alignas(16) RGBAColor_32f
 
 		struct alignas(16)
 		{
+			float32_t Alpha;
+			float32_t L;
+			float32_t S;
+			float32_t H;
+		};
+
+		struct alignas(16)
+		{
 			float32_t X;
 			float32_t Y;
 			float32_t Z;
@@ -224,10 +217,13 @@ public:
 
 	RGBAColor_8i toRGBAColor_8i();
 
+	void RGBtoHSL(RGBAColor_32f& outColor);
+	void HSLtoRGB(RGBAColor_32f& outColor);
+
 	void FMA(RGBAColor_32f& addResult, const RGBAColor_32f& mul1, const RGBAColor_32f& mul2);
 };
 using floatVec4 = RGBAColor_32f;
-
+using HSLAColor_32f = RGBAColor_32f;
 
 class ImageProcessingTools
 {
@@ -250,6 +246,7 @@ protected:
 	static void VividnessAdjustmentColor(RGBAColor_32f& color,const float32_t& changeMagnification);
 	static void NatualVividnessAdjustmentColor(RGBAColor_32f& color, const float32_t& changeMagnification);
 	static void ACESToneMappingColor(RGBAColor_32f& color, const float32_t& adapted_lum);
+	static void HSLAdjustmentColor(RGBAColor_32f& color, const float32_t& hueChange, const float32_t& saturationRatio, const float32_t& lightnessRatio);
 
 	static void MixedPicturesColor(const byte& colorOut,const byte& colorIn, byte& colorResult, byte& alphaResult);
 	static void filteringMethod1_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
@@ -292,6 +289,7 @@ public:
 		void (*filteringMethod)(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn));
 	static bool PixelToRGB3x3(TextureData& input, TextureData& result, const float32_t& brightness = 0.0f);
 	static bool Encryption_xor_reverse(TextureData& inputOutput, const uint32_t& key = 0b1110'1101'1011'1001'0101'1010'0010'0100);
+	static bool HSLAdjustment(TextureData& inputOutput, const float32_t& hueChange = 0.0f, const float32_t& saturationRatio = 1.0f, const float32_t& lightnessRatio = 1.0f);
 };
 
 
@@ -493,6 +491,54 @@ inline RGBAColor_8i RGBAColor_32f::toRGBAColor_8i()
 		static_cast<uint8_t>(result.G),
 		static_cast<uint8_t>(result.B),
 		static_cast<uint8_t>(result.A));
+}
+
+inline void RGBAColor_32f::RGBtoHSL(RGBAColor_32f& outColor)
+{
+	float32_t maxChannel = Max(this->R, this->G, this->B);
+	float32_t minChannel = Min(this->R, this->G, this->B);
+
+	outColor.Alpha = this->A;
+	outColor.L = (maxChannel + minChannel) * 0.5f;
+	outColor.S = ((0.0f < outColor.L) && (outColor.L < 1.0f)) ? ((maxChannel - minChannel) / (1.0f - fabsf(2.0f * outColor.L - 1.0f))) : 0.0f;
+	outColor.H = std::roundf(std::atan2f(std::sqrtf(3.0f) * (this->G - this->B), 2.0f * this->R - this->G - this->B) * radToDeg);
+	if (outColor.H < 0.0f) outColor.H += 360.0f;
+}
+
+inline void RGBAColor_32f::HSLtoRGB(RGBAColor_32f& outColor)
+{
+	float32_t C = (1.0f - fabsf(2.0f * this->L - 1.0f)) * this->S;
+	float32_t hPrime = this->H * (1.0f / 60.0f);
+	float32_t X = C * (1 - fabsf(std::fmodf(hPrime, 2.0f) - 1.0f));
+	float32_t min = this->L - C * 0.5f;
+
+	if (hPrime <= 1.0f)
+	{
+		outColor = RGBAColor_32f(C, X, 0.0f);
+	}
+	else if (hPrime <= 2.0f)
+	{
+		outColor = RGBAColor_32f(X, C, 0.0f);
+	}
+	else if (hPrime <= 3.0f)
+	{
+		outColor = RGBAColor_32f(0.0f, C, X);
+	}
+	else if (hPrime <= 4.0f)
+	{
+		outColor = RGBAColor_32f(0.0f, X, C);
+	}
+	else if (hPrime <= 5.0f)
+	{
+		outColor = RGBAColor_32f(X, 0.0f, C);
+	}
+	else if (hPrime <= 6.0f)
+	{
+		outColor = RGBAColor_32f(C, 0.0f, X);
+	}
+
+	outColor += min;
+	outColor.A = this->Alpha;
 }
 
 inline void RGBAColor_32f::FMA(RGBAColor_32f& addResult, const RGBAColor_32f& mul1, const RGBAColor_32f& mul2)
@@ -787,7 +833,7 @@ inline void ImageProcessingTools::NatualVividnessAdjustmentColor(RGBAColor_32f& 
 	ratio *= color;
 	float32_t avg = ratio.R + ratio.G + ratio.B;
 
-	float32_t max = Max(color.B, Max(color.G, color.R));
+	float32_t max = Max(color.B, color.G, color.R);
 
 	float32_t amtval = fabsf(max - avg) * 2.0f * (-changeMagnification);
 
@@ -815,6 +861,21 @@ inline void ImageProcessingTools::ACESToneMappingColor(RGBAColor_32f& color, con
 	color = (color * (color * A + B)) / (color * (color * C + D) + E);
 
 	color.A = Alpha;
+}
+
+inline void ImageProcessingTools::HSLAdjustmentColor(RGBAColor_32f& color, const float32_t& hueChange, const float32_t& saturationRatio, const float32_t& lightnessRatio)
+{
+	HSLAColor_32f hslColor;
+	color.RGBtoHSL(hslColor);
+
+	hslColor.H = std::fmodf(std::fmodf(hslColor.H + hueChange, 360.0f) + 360.0f, 360.0f);
+	hslColor.S *= saturationRatio;
+	Clamp(hslColor.S, 0.0f, 1.0f);
+	hslColor.L *= lightnessRatio;
+	Clamp(hslColor.L, 0.0f, 1.0f);
+	hslColor.Alpha = color.A;
+
+	hslColor.HSLtoRGB(color);
 }
 
 inline void ImageProcessingTools::MixedPicturesColor(const byte& colorOut,const byte& colorIn, byte& colorResult, byte& alphaResult)

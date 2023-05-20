@@ -1,4 +1,4 @@
-#include"Image.h"
+#include "Image.h"
 
 bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& CenterWeight,
 	void (*WeightEffact)(const float32_t& dx, const float32_t& dy, floatVec4& weightResult))
@@ -794,6 +794,29 @@ bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, cons
 			if ((X + Y) % 2 == 0) {
 				ImageProcessingTools::ReverseColor(color);
 			}
+		}
+
+		});
+	return true;
+}
+
+bool ImageProcessingTools::HSLAdjustment(TextureData& inputOutput, const float32_t& hueRatio, const float32_t& saturationRatio, const float32_t& lightnessRatio)
+{
+	if (inputOutput.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
+		return false;
+
+	//not need this time
+	inputOutput.clearImage();
+
+	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &hueRatio, &saturationRatio, &lightnessRatio](uint32_t Y) {
+
+		for (auto X = 0u; X < inputOutput.width; ++X)
+		{
+			RGBAColor_32f color(inputOutput(X, Y));
+
+			ImageProcessingTools::HSLAdjustmentColor(color, hueRatio, saturationRatio, lightnessRatio);
+
+			inputOutput(X, Y) = color.toRGBAColor_8i();
 		}
 
 		});
