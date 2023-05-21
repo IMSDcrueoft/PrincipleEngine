@@ -238,6 +238,7 @@ public:
 
 protected:
 	static void FastGray(const RGBAColor_8i& color, uint16_t& result);
+	static void FastGray(const RGBAColor_8i& color, float32_t& result);
 	static void GrayColor(const RGBAColor_8i& color,byte& result);
 	static void BinarizationColor(const RGBAColor_8i& color,const float32_t& threshold,byte& result);//Too few colors, need to adjust the threshold
 	static void QuaternizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result);//Too few colors, need to adjust the threshold
@@ -646,9 +647,13 @@ inline void TextureData::clear()
 
 inline void ImageProcessingTools::FastGray(const RGBAColor_8i& color, uint16_t& result)
 {
-	result = (static_cast<uint16_t>(color.R) << 1u) + (static_cast<uint16_t>(color.G) << 2u) + color.G + color.B;
+	result = ((static_cast<uint16_t>(color.R) << 2u) + (static_cast<uint16_t>(color.G) << 3u) + (static_cast<uint16_t>(color.G) << 1u) + (static_cast<uint16_t>(color.B) << 1u)) >> 4u;
 	//2/8 5/8 1/8
-	result >>= 3u;
+}
+
+inline void ImageProcessingTools::FastGray(const RGBAColor_8i& color, float32_t& result)
+{
+	result = static_cast<float32_t>(((static_cast<uint16_t>(color.R) << 2u) + (static_cast<uint16_t>(color.G) << 3u) + (static_cast<uint16_t>(color.G) << 1u) + (static_cast<uint16_t>(color.B) << 1u)) >> 4u);
 }
 
 inline void ImageProcessingTools::GrayColor(const RGBAColor_8i& color, byte& result)
@@ -674,8 +679,8 @@ inline void ImageProcessingTools::GrayColor(const RGBAColor_8i& color, byte& res
 
 inline void ImageProcessingTools::BinarizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result)
 {
-	float32_t avg = (color.R + color.G + color.B) * 0.33333f;
-
+	float32_t avg;
+	ImageProcessingTools::FastGray(color, avg);
 	float32_t l = threshold * maxColorPix;
 
 	result = (avg >= l) ? 0b1111'1111u : 0b0000'0000u;
@@ -683,7 +688,8 @@ inline void ImageProcessingTools::BinarizationColor(const RGBAColor_8i& color, c
 
 inline void ImageProcessingTools::QuaternizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result)
 {
-	float32_t avg = (color.R + color.G + color.B) * 0.33333f;
+	float32_t avg;
+	ImageProcessingTools::FastGray(color, avg);
 
 	float32_t l1 = 171.0f;
 	float32_t l2 = 86.0f;
@@ -715,7 +721,8 @@ inline void ImageProcessingTools::QuaternizationColor(const RGBAColor_8i& color,
 
 inline void ImageProcessingTools::HexadecimalizationColor(const RGBAColor_8i& color, byte& result)
 {
-	uint16_t avg = (color.R + color.G + color.B) / 3u;
+	uint16_t avg;
+	ImageProcessingTools::FastGray(color, avg);
 
 	if (avg >= 247u)
 	{
@@ -972,15 +979,16 @@ inline void ImageProcessingTools::weightEffectAdapt(const float32_t& dx, const f
 {
 	float32_t sum = 0.0f;
 
-	float32_t dx2 = dx * dx;
-	float32_t dy2 = dy * dy;
-	float32_t _dx2 = (1.0f - dx) * (1.0f - dx);
-	float32_t _dy2 = (1.0f - dy) * (1.0f - dy);
+	//distance in 16x16
+	float32_t dx_a2 = (dx + 0.5f) * (dx + 0.5f);
+	float32_t dy_a2 = (dy + 0.5f) * (dy + 0.5f);
+	float32_t _dx_a2 = (1.5f - dx) * (1.5f - dx);
+	float32_t _dy_a2 = (1.5f - dy) * (1.5f - dy);
 
-	sum += weightResult.X = Index(_dx2 + _dy2);
-	sum += weightResult.W = Index(dx2 + dy2);
-	sum += weightResult.Y = Index(dx2 + _dy2);
-	sum += weightResult.Z = Index(_dx2 + dy2);
+	sum += weightResult.X = Index(_dx_a2 + _dy_a2);
+	sum += weightResult.W = Index(dx_a2 + dy_a2);
+	sum += weightResult.Y = Index(dx_a2 + _dy_a2);
+	sum += weightResult.Z = Index(_dx_a2 + dy_a2);
 
 	weightResult *= (4.0f / sum);
 }

@@ -40,15 +40,13 @@ void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pn
 
 void PngProcessingTools::exportFile(TextureData& result, std::wstring& resultname, const LodePNGColorType& colorType, const uint32_t& bitdepth)
 {
-	auto path = AdaptString::toString(resultname);
-
-	if ((static_cast<size_t>(result.width) * result.height * 4) >= 0xFF'FF'FF'FF)
+	if ((static_cast<size_t>(result.width) * result.height) > (0xFF'FF'FF'FFu >> 2u))
 	{
-		assert(false && "Byte size is bigger than UINT32,need cut.");
-		std::cout << "Byte size is bigger than UINT32,need cut." << std::endl;
+		exportFile(result.image.data(), result.width, result.height, resultname, colorType, bitdepth);//run raw byte export
 	}
 	else
 	{
+		auto path = AdaptString::toString(resultname);
 		uint32_t error = lodepng::encode(path, result.image, result.width, result.height, colorType, bitdepth);
 
 		if (error)
@@ -63,15 +61,57 @@ void PngProcessingTools::exportFile(TextureData& result, std::wstring& resultnam
 
 void PngProcessingTools::exportFile(const byte* result, const uint32_t& width, const uint32_t& height, std::wstring& resultname, const LodePNGColorType& colorType, const uint32_t& bitdepth)
 {
-	auto path = AdaptString::toString(resultname);
-
-	if ((static_cast<size_t>(width) * height * 4) >= 0xFF'FF'FF'FF)
+	if ((static_cast<size_t>(width) * height) > (0xFF'FF'FF'FFu >> 2u))
 	{
 		assert(false && "Byte size is bigger than UINT32,need cut.");
 		std::cout << "Byte size is bigger than UINT32,need cut." << std::endl;
+
+		if (width <= (0xFF'FF'FF'FFu >> 2u)) {
+			uint32_t splitNum = std::ceil(float64_t(height) * float64_t(width) / float64_t(0xFF'FF'FF'FFu >> 2u));
+			if (splitNum < height) ++splitNum;//dont let block too big
+
+			uint32_t splitInterval = height / splitNum;
+			size_t byteSplitInterval = (static_cast<size_t>(width) * splitInterval) << 2u;
+
+			std::vector<std::unique_ptr<std::thread>> allthreads;
+
+			allthreads.reserve(splitNum);
+
+			auto exportSplitSlice = [&width, &colorType, &bitdepth](const byte* resultPart, uint32_t heightPart, std::wstring resultNamePart)
+			{
+				exportFile(resultPart, width, heightPart, resultNamePart, colorType, bitdepth);
+			};
+
+			for (size_t Current = 0u, currentSlice = 1u, size = ((static_cast<size_t>(width) * height) << 2u); Current < size; Current += byteSplitInterval, ++currentSlice)
+			{
+				std::wstring thisName;
+				thisName.append(resultname).append(L"_part").append(std::to_wstring(currentSlice)).append(L".png");//let user solve this themself
+
+				if ((Current + byteSplitInterval) <= size)
+				{
+					allthreads.push_back(std::make_unique<std::thread>(exportSplitSlice, result + Current, splitInterval, thisName));
+				}
+				else
+					if ((size - Current) > 0u)
+					{
+						allthreads.push_back(std::make_unique<std::thread>(exportSplitSlice, result + Current, height % splitInterval, thisName));
+					}
+			}
+
+			for (auto& thread : allthreads)
+			{
+				if (thread->joinable())
+					thread->join();
+			}
+		}
+		else
+		{
+			std::cout << "Single row of data Byte size is bigger than UINT32,export failed!" << std::endl;
+		}
 	}
 	else
 	{
+		auto path = AdaptString::toString(resultname);
 		uint32_t error = lodepng::encode(path, result, width, height, colorType, bitdepth);
 
 		if (error)
@@ -646,7 +686,7 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -692,7 +732,7 @@ void PngProcessingTools::zoomProgramCubicConvolution(float32_t& zoomRatio, std::
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -731,7 +771,7 @@ void PngProcessingTools::laplaceSharpenProgram(float32_t& sharpenRatio, std::fil
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -770,7 +810,7 @@ void PngProcessingTools::gaussLaplaceSharpenProgram(float32_t& sharpenRatio, std
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -807,7 +847,7 @@ void PngProcessingTools::hdrToneMappingColorProgram(float32_t& lumRatio, std::fi
 
 		exportFile(image, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -839,7 +879,7 @@ void PngProcessingTools::reverseColorProgram(std::filesystem::path& pngfile)
 
 		exportFile(image, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -959,7 +999,7 @@ void PngProcessingTools::vividnessAdjustmentColorProgram(float32_t& VividRatio, 
 
 		exportFile(image, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -996,7 +1036,7 @@ void PngProcessingTools::natualvividnessAdjustmentColorProgram(float32_t& VividR
 
 		exportFile(image, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1138,12 +1178,12 @@ void PngProcessingTools::fastSplitHorizonProgram(uint32_t& splitInterval, std::f
 			std::wstring thisName;
 			thisName.append(resultnamepart).append(std::to_wstring(currentSlice)).append(pngfile.extension());
 
-			if ((Current + byteSplitInterval) < image.image.size())
+			if ((Current + byteSplitInterval) <= image.image.size())
 			{
 				allthreads.push_back(std::make_unique<std::thread>(exportSplitSlice, image.image.data() + Current, splitInterval, thisName));
 			}
 			else
-				if ((image.image.size() - Current) >= 0u)
+				if ((image.image.size() - Current) > 0u)
 				{
 					allthreads.push_back(std::make_unique<std::thread>(exportSplitSlice, image.image.data() + Current, image.height % splitInterval, thisName));
 				}
@@ -1309,7 +1349,7 @@ void PngProcessingTools::surfaceBlurfilterProgram(float32_t& threshold, std::fil
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1365,7 +1405,7 @@ void PngProcessingTools::sobelEdgeEnhancementProgram(float32_t& strength, std::f
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1402,7 +1442,7 @@ void PngProcessingTools::mosaicPixelationProgram(uint32_t& sideLength, std::file
 
 		exportFile(image, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1501,7 +1541,7 @@ void PngProcessingTools::pixelToRGB8_3x3Program(float32_t& brightness, std::file
 
 		exportFile(result, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
@@ -1522,22 +1562,13 @@ void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfil
 		const auto& data = image.image.data();
 		size_t byteOffset = static_cast<size_t>(image.width) << 2u;
 
-		for (auto Y = 1u; Y < image.height; Y += 2) {
-			for (size_t X = 0u; X < image.width; ++X)
-			{
+		for (auto Y = 1u; Y < image.height; Y += 2u) {
 #if LITTLE_ENDIAN
-				* ((data + byteOffset * Y) + (X << 2u)) = 0x00;
-				*((data + byteOffset * Y) + (X << 2u) + 1) = 0x00;
-				*((data + byteOffset * Y) + (X << 2u) + 2) = 0x00;
-				*((data + byteOffset * Y) + (X << 2u) + 3) = 0xFF;
+			std::fill_n(reinterpret_cast<uint32_t*>(data + byteOffset * Y), image.width, 0xFF'00'00'00u);
 #else
-				* ((data + byteOffset * Y) + (X << 2u)) = 0xFF;
-				*((data + byteOffset * Y) + (X << 2u) + 1) = 0x00;
-				*((data + byteOffset * Y) + (X << 2u) + 2) = 0x00;
-				*((data + byteOffset * Y) + (X << 2u) + 3) = 0x00;
+			std::fill_n(reinterpret_cast<uint32_t*>(data + byteOffset * Y), image.width, 0x00'00'00'FFu);
 #endif
-			}
-}
+		}
 
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
@@ -1561,7 +1592,7 @@ void PngProcessingTools::encryption_xor_reverseProgram(uint32_t& xorKey, std::fi
 	TextureData image;
 	importFile(image, pngfile);
 
-	bool useDefaultXorKey = ((xorKey == 0) || (xorKey == 0xFF'FF'FF'FF));
+	bool useDefaultXorKey = ((xorKey == 0u) || (xorKey == 0xFF'FF'FF'FF));
 
 	if (useDefaultXorKey ? ImageProcessingTools::Encryption_xor_reverse(image) : ImageProcessingTools::Encryption_xor_reverse(image, xorKey))
 	{
@@ -1579,7 +1610,7 @@ void PngProcessingTools::encryption_xor_reverseProgram(uint32_t& xorKey, std::fi
 
 		exportFile(image, resultname);
 #endif
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;
