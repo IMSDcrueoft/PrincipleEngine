@@ -15,8 +15,8 @@ bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureDa
 	resultRGBA.resize(static_cast<size_t>(result.width) * result.height);
 
 	float32_t center = CenterWeight * 0.250f;
-	float32_t outerNear = (1.0f - CenterWeight) * 0.09234952f;//near * 8 + far * 4 = 1
-	float32_t outerFar = (1.0f - CenterWeight) * 0.06530097f;
+	float32_t outerNear = (1.0f - CenterWeight) * 0.08772433f;//near * 8 + far * 4 = 1
+	float32_t outerFar = (1.0f - CenterWeight) * 0.074551344f;
 
 	const float32_t kernel[4][4]
 	{
