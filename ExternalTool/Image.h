@@ -228,11 +228,11 @@ using HSLAColor_32f = RGBAColor_32f;
 class ImageProcessingTools
 {
 public:
-	enum class Exponent:uint8_t
+	enum class Exponent :uint8_t
 	{
-		half = 1,
-		one = 2,
-		square = 3,
+		one = 1,
+		square = 2,
+		cubic = 3,
 		quartet = 4,
 	};
 
@@ -256,19 +256,17 @@ protected:
 	static void filteringMethod1_3(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
 
 protected:
-	static float32_t cubicConvolutionZoomFormula(const float32_t& a, const float32_t& x);
+	static float32_t bicubicConvolutionZoomFormula(const float32_t& a, const float32_t& x);
 
-	static void weightEffectAdapt(const float32_t& dx, const float32_t& dy, floatVec4& weightResult, float32_t(*Index)(const float32_t&));
-	static void weightEffectHalf(const float32_t& dx, const float32_t& dy, floatVec4& weightResult);
-	static void weightEffectOne(const float32_t& dx, const float32_t& dy, floatVec4& weightResult);
-	static void weightEffectSquare(const float32_t& dx, const float32_t& dy, floatVec4& weightResult);
-	static void weightEffectQuartet(const float32_t& dx, const float32_t& dy, floatVec4& weightResult);
+	static void weightEffectSquare(const float32_t& dx, float32_t& weightResult);
+	static void weightEffectCubic(const float32_t& dx, float32_t& weightResult);
+	static void weightEffectQuartet(const float32_t& dx, float32_t& weightResult);
 
 public:
-	static bool Zoom_DefaultSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification = 1.0f, const float32_t& CenterWeight = 0.64f,
-		void (*WeightEffact)(const float32_t& dx, const float32_t& dy,floatVec4& weightResult) = ImageProcessingTools::weightEffectSquare);
+	static bool Zoom_DefaultSampling2x2(TextureData& input, TextureData& result, const float32_t& magnification = 1.0f, const float32_t& threshold = 1.0f,
+		const Exponent& exponent = Exponent::one);
 
-	static bool Zoom_CubicConvolutionSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification = 1.0f, const float32_t& a = -0.5f);
+	static bool Zoom_BicubicConvolutionSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification = 1.0f, const float32_t& a = -0.5f);
 
 	static bool SharpenLaplace3x3(TextureData& input, TextureData& result, const float32_t& strength = 1.0f);
 	static bool SharpenGaussLaplace5x5(TextureData& input, TextureData& result, const float32_t& strength = 1.0f);
@@ -946,7 +944,7 @@ inline void ImageProcessingTools::filteringMethod1_3(const RGBAColor_8i& colorOu
 	resultIn = (static_cast<uint16_t>(g2) * 3u) >> 2u;//<=191
 }
 
-inline float32_t ImageProcessingTools::cubicConvolutionZoomFormula(const float32_t& a, const float32_t& x)
+inline float32_t ImageProcessingTools::bicubicConvolutionZoomFormula(const float32_t& a, const float32_t& x)
 {
 	// -3 <= a <= -0.1
 	// -2 <= x <= 2
@@ -975,58 +973,31 @@ inline float32_t ImageProcessingTools::cubicConvolutionZoomFormula(const float32
 		}
 }
 
-inline void ImageProcessingTools::weightEffectAdapt(const float32_t& dx, const float32_t& dy, floatVec4& weightResult, float32_t(*Index)(const float32_t&))
+inline void ImageProcessingTools::weightEffectSquare(const float32_t& dx, float32_t& weightResult)
 {
-	float32_t sum = 0.0f;
-
-	//distance in 16x16
-	float32_t dx_a2 = (dx + 0.5f) * (dx + 0.5f);
-	float32_t dy_a2 = (dy + 0.5f) * (dy + 0.5f);
-	float32_t _dx_a2 = (1.5f - dx) * (1.5f - dx);
-	float32_t _dy_a2 = (1.5f - dy) * (1.5f - dy);
-
-	sum += weightResult.X = Index(_dx_a2 + _dy_a2);
-	sum += weightResult.W = Index(dx_a2 + dy_a2);
-	sum += weightResult.Y = Index(dx_a2 + _dy_a2);
-	sum += weightResult.Z = Index(_dx_a2 + dy_a2);
-
-	weightResult *= (4.0f / sum);
+	if (dx < 0.5f)
+		weightResult = 2.0f * dx * dx;
+	else
+		weightResult = 1.0f - 2.0f * (1.0f - dx) * (1.0f - dx);
 }
 
-inline void ImageProcessingTools::weightEffectHalf(const float32_t& dx, const float32_t& dy, floatVec4& weightResult)
+inline void ImageProcessingTools::weightEffectCubic(const float32_t& dx, float32_t& weightResult)
 {
-	weightEffectAdapt(dx, dy, weightResult,
-		[](const float32_t& value)
-		{
-			return std::sqrtf(std::sqrtf(value));
-		});
+	if (dx < 0.5f)
+		weightResult = 4.0f * dx * dx * dx;
+	else
+		weightResult = 1.0f - 4.0f * (1.0f - dx) * (1.0f - dx) * (1.0f);
 }
 
-inline void ImageProcessingTools::weightEffectOne(const float32_t& dx, const float32_t& dy, floatVec4& weightResult)
+inline void ImageProcessingTools::weightEffectQuartet(const float32_t& dx, float32_t& weightResult)
 {
-	weightEffectAdapt(dx, dy, weightResult,
-		[](const float32_t& value)
-		{
-			return std::sqrtf(value);
-		});
-}
+	float32_t dx2 = dx * dx;
+	float32_t _dx2 = (1.0f - dx) * (1.0f - dx);
 
-inline void ImageProcessingTools::weightEffectSquare(const float32_t& dx, const float32_t& dy, floatVec4& weightResult)
-{
-	weightEffectAdapt(dx, dy, weightResult,
-		[](const float32_t& value)
-		{
-			return value;
-		});
-}
-
-inline void ImageProcessingTools::weightEffectQuartet(const float32_t& dx, const float32_t& dy, floatVec4& weightResult)
-{
-	weightEffectAdapt(dx, dy, weightResult,
-		[](const float32_t& value)
-		{
-			return value * value;
-		});
+	if (dx < 0.5f)
+		weightResult = 8.0f * dx2 * dx2;
+	else
+		weightResult = 1.0f - 8.0f * _dx2 * _dx2;
 }
 
 #endif // !IMAGE_H

@@ -154,11 +154,11 @@ void PngProcessingTools::help()
 		<< "[  (En-De)cryption   ]: e or E\n"
 		<< '\n'
 		<< "Input Sample-->\n"
-		<< "./pngProcessor.exe filename.png z[default zoom] 1.0[zoom ratio:DF] 0.5[center weight:DF] 2[Exponent:DF]\n"
+		<< "./pngProcessor.exe filename.png z[default zoom] 1.0[zoom ratio:DF] 0.5[edge threshold:DF] 1[Exponent:DF]\n"
 		<< "[default zoom]\n"
 		<< "[zoom ratio(from 0.001 to 32.0)]\n"
-		<< "[center weight(from 0.25 to 13.0, 0.25:similar to MSAAx16, 1.0 : similar to bilinear, >1:sharp)]\n"
-		<< "[Exponent(from 1 to 4:0.5, 1.0, 2.0, 4.0)]\n"
+		<< "[edge threshold(from 0.0 to 1.0, 1.0 means bilinear)]\n"
+		<< "[Exponent(from 1 to 4:one, square, cubic, quartet)]\n"
 		<< '\n'
 		<< "./pngProcessor.exe filename.png Z[bicubic zoom] -1.0[formula factor:DF]\n"
 		<< "[bicubic zoom]\n"
@@ -315,7 +315,8 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	{
 	case (int)Mode::zoom:
 		param1 = 0.5f;
-		param2 = 0.64f;
+		param2 = 1.0f;
+		exponent = 1;
 
 		if (argCount > 3)
 		{
@@ -338,17 +339,17 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 
 		if (exponent == 1)
 		{
-			std::cout << "Half\n";
+			std::cout << "One\n";
 		}
 		else
 			if (exponent == 2)
 			{
-				std::cout << "One\n";
+				std::cout << "Square\n";
 			}
 			else
 				if (exponent == 3)
 				{
-					std::cout << "Square\n";
+					std::cout << "Cubic\n";
 				}
 				else
 					if (exponent == 4)
@@ -373,7 +374,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 			}
 		}
 
-		PngProcessingTools::zoomProgramCubicConvolution(param1, pngfile, param2);
+		PngProcessingTools::zoomProgramBicubicConvolution(param1, pngfile, param2);
 		break;
 
 	case (int)Mode::sharpen:
@@ -625,7 +626,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		<< "Time used:" << timer.getTime() << "(second).\n" << std::endl;
 }
 
-void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& CenterWeight, const Exponent& exponent)
+void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& threshold, const Exponent& exponent)
 {
 	std::cout << "Zoom Default:\n"
 		<< "Input zoom factor:" << zoomRatio << '\n';
@@ -633,47 +634,25 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 	Clamp(zoomRatio, 0.001f, 32.0f);
 	std::cout << "Adoption zoom factor:" << zoomRatio << '\n';
 
-	std::cout << "Input center weight:" << CenterWeight << '\n';
+	std::cout << "Input edge threshold:" << threshold << '\n';
 
-	Clamp(CenterWeight, 0.25f, 13.0f);
+	Clamp(threshold, 0.0f, 1.0f);
 
-	std::cout << "Adoption center weight:" << CenterWeight << '\n'
+	std::cout << "Adoption edge threshold:" << threshold << '\n'
 		<< "Start processing . . ." << std::endl;
 
 
 	TextureData image, result;
 	importFile(image, pngfile);
 
-
-	void (*WeightEffact)(const float32_t&, const float32_t&, floatVec4&) = nullptr;
-
-	if (exponent == Exponent::half)
-	{
-		WeightEffact = ImageProcessingTools::weightEffectHalf;
-	}
-	else
-		if (exponent == Exponent::one)
-		{
-			WeightEffact = ImageProcessingTools::weightEffectOne;
-		}
-		else
-			if (exponent == Exponent::quartet)
-			{
-				WeightEffact = ImageProcessingTools::weightEffectQuartet;
-			}
-			else
-			{
-				WeightEffact = ImageProcessingTools::weightEffectSquare;
-			}
-
-	if (ImageProcessingTools::Zoom_DefaultSampling4x4(image, result, zoomRatio, CenterWeight, WeightEffact))
+	if (ImageProcessingTools::Zoom_DefaultSampling2x2(image, result, zoomRatio, threshold, exponent))
 	{
 		image.clear();
 
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
 			.append(L"_zoom_x").append(std::to_wstring(zoomRatio))
-			.append(L"_centerWeight_").append(std::to_wstring(CenterWeight))
+			.append(L"_edgeThreshold_").append(std::to_wstring(threshold))
 			.append(L"_Exponent_Mode_").append(std::to_wstring((uint32_t)exponent))
 			.append(pngfile.extension());
 
@@ -694,9 +673,9 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 	}
 }
 
-void PngProcessingTools::zoomProgramCubicConvolution(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& a)
+void PngProcessingTools::zoomProgramBicubicConvolution(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& a)
 {
-	std::cout << "Zoom Cubic:\n"
+	std::cout << "Zoom Bicubic:\n"
 		<< "Input zoom factor:" << zoomRatio << '\n';
 
 	Clamp(zoomRatio, 0.001f, 32.0f);
@@ -713,14 +692,14 @@ void PngProcessingTools::zoomProgramCubicConvolution(float32_t& zoomRatio, std::
 	TextureData image, result;
 	importFile(image, pngfile);
 
-	if (ImageProcessingTools::Zoom_CubicConvolutionSampling4x4(image, result, zoomRatio, a))
+	if (ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(image, result, zoomRatio, a))
 	{
 		image.clear();
 
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
 			.append(L"_Zoom_x").append(std::to_wstring(zoomRatio))
-			.append(L"_cubicFactor_").append(std::to_wstring(a))
+			.append(L"_bicubicFactor_").append(std::to_wstring(a))
 			.append(pngfile.extension());
 
 #if LITTLE_ENDIAN

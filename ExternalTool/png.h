@@ -70,8 +70,8 @@ public:
 	static void help();
 	static void commandStartUps(int32_t argCount, STR argValues[]);
 
-	static void zoomProgramDefault(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& CenterWeight, const Exponent& exponent = Exponent::one);
-	static void zoomProgramCubicConvolution(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& a);
+	static void zoomProgramDefault(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& threshold, const Exponent& exponent = Exponent::one);
+	static void zoomProgramBicubicConvolution(float32_t& zoomRatio, std::filesystem::path& pngfile, float32_t& a);
 	static void laplaceSharpenProgram(float32_t& sharpenRatio, std::filesystem::path& pngfile);
 	static void gaussLaplaceSharpenProgram(float32_t& sharpenRatio, std::filesystem::path& pngfile);
 	static void hdrToneMappingColorProgram(float32_t& lumRatio, std::filesystem::path& pngfile);

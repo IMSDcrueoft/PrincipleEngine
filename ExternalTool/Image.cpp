@@ -1,7 +1,6 @@
 #include "Image.h"
 
-bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& CenterWeight,
-	void (*WeightEffact)(const float32_t& dx, const float32_t& dy, floatVec4& weightResult))
+bool ImageProcessingTools::Zoom_DefaultSampling2x2(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& threshold, const Exponent& exponent)
 {
 	if (input.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
 		return false;
@@ -14,83 +13,145 @@ bool ImageProcessingTools::Zoom_DefaultSampling4x4(TextureData& input, TextureDa
 	auto& resultRGBA = result.getRGBA_uint8();
 	resultRGBA.resize(static_cast<size_t>(result.width) * result.height);
 
-	float32_t center = CenterWeight * 0.250f;
-	float32_t outerNear = (1.0f - CenterWeight) * 0.08772433f;//near * 8 + far * 4 = 1
-	float32_t outerFar = (1.0f - CenterWeight) * 0.074551344f;
+#define LerpRGBA(pixA,pixB,r) \
+{                             \
+	pixB -= pixA;             \
+	pixB *= (r);              \
+	pixA += pixB;             \
+}                             \
 
-	const float32_t kernel[4][4]
+	if (exponent == Exponent::one)//Bilinear
 	{
-		{outerFar ,outerNear,outerNear,outerFar },
-		{outerNear,center	,center	  ,outerNear},
-		{outerNear,center	,center	  ,outerNear},
-		{outerFar ,outerNear,outerNear,outerFar }
-	};
+		parallel::parallel_for(0u, result.height, [&result, &input, &scaleIndex](uint32_t Y) {
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &WeightEffact, &kernel, &scaleIndex](uint32_t Y) {
+			auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
+			{
+				return static_cast<int64_t>(floorf(index * scaleIndex));
+			};
 
-		auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
+			auto Row = GetFloorIndex(Y);
+
+			for (auto X = 0u; X < result.width; ++X)
+			{
+				auto Column = GetFloorIndex(X);
+
+				float32_t dx = X * scaleIndex - Column;
+				float32_t dy = Y * scaleIndex - Row;
+
+				RGBAColor_32f rgba_f1(input(Column + (0), Row + (0)));
+				RGBAColor_32f rgba_f2(input(Column + (1), Row + (0)));
+				RGBAColor_32f rgba_f3(input(Column + (0), Row + (1)));
+				RGBAColor_32f rgba_f4(input(Column + (1), Row + (1)));
+
+				//Unrolling loops to enhance performance
+				LerpRGBA(rgba_f1, rgba_f2, dx);
+				LerpRGBA(rgba_f3, rgba_f4, dx);
+				LerpRGBA(rgba_f1, rgba_f3, dy);
+
+				result(X, Y) = rgba_f1.toRGBAColor_8i();
+			}
+
+			});
+	}
+	else
+	{
+		//the weight effect
+		void(*weightEffect)(const float32_t&, float32_t&) = nullptr;
+
+		switch (exponent)
 		{
-			return static_cast<int64_t>(floorf(index * scaleIndex));
-		};
-
-		auto Row = GetFloorIndex(Y);
-
-		for (auto X = 0u; X < result.width; ++X)
-		{
-
-			auto Column = GetFloorIndex(X);
-
-			float32_t dx = X * scaleIndex - Column;
-			float32_t dy = Y * scaleIndex - Row;
-
-			//Calculate weight parameters
-			floatVec4 weight;
-			WeightEffact(dx, dy, weight);
-
-			RGBAColor_32f rgba_f1(0.0f, 0.0f, 0.0f, 0.0f);
-			RGBAColor_32f rgba_f2(0.0f, 0.0f, 0.0f, 0.0f);
-			RGBAColor_32f rgba_f3(0.0f, 0.0f, 0.0f, 0.0f);
-			RGBAColor_32f rgba_f4(0.0f, 0.0f, 0.0f, 0.0f);
-
-			//Unrolling loops to enhance performance
-
-			rgba_f1 += RGBAColor_32f(input(Column + (-1), Row + (-1)), kernel[0][0]);
-			rgba_f1 += RGBAColor_32f(input(Column + (0), Row + (-1)), kernel[0][1]);
-			rgba_f1 += RGBAColor_32f(input(Column + (-1), Row + (0)), kernel[1][0]);
-			rgba_f1 += RGBAColor_32f(input(Column + (0), Row + (0)), kernel[1][1]);
-
-			rgba_f2 += RGBAColor_32f(input(Column + (1), Row + (-1)), kernel[0][2]);
-			rgba_f2 += RGBAColor_32f(input(Column + (2), Row + (-1)), kernel[0][3]);
-			rgba_f2 += RGBAColor_32f(input(Column + (1), Row + (0)), kernel[1][2]);
-			rgba_f2 += RGBAColor_32f(input(Column + (2), Row + (0)), kernel[1][3]);
-
-			rgba_f3 += RGBAColor_32f(input(Column + (-1), Row + (1)), kernel[2][0]);
-			rgba_f3 += RGBAColor_32f(input(Column + (0), Row + (1)), kernel[2][1]);
-			rgba_f3 += RGBAColor_32f(input(Column + (-1), Row + (2)), kernel[3][0]);
-			rgba_f3 += RGBAColor_32f(input(Column + (0), Row + (2)), kernel[3][1]);
-
-			rgba_f4 += RGBAColor_32f(input(Column + (1), Row + (1)), kernel[2][2]);
-			rgba_f4 += RGBAColor_32f(input(Column + (2), Row + (1)), kernel[2][3]);
-			rgba_f4 += RGBAColor_32f(input(Column + (1), Row + (2)), kernel[3][2]);
-			rgba_f4 += RGBAColor_32f(input(Column + (2), Row + (2)), kernel[3][3]);
-
-			rgba_f1 *= weight.X;
-			rgba_f2 *= weight.Y;
-			rgba_f3 *= weight.Z;
-			rgba_f4 *= weight.W;
-
-			rgba_f1 += rgba_f2;
-			rgba_f1 += rgba_f3;
-			rgba_f1 += rgba_f4;
-
-			result(X, Y) = rgba_f1.toRGBAColor_8i();
+		case Exponent::square:
+			weightEffect = ImageProcessingTools::weightEffectSquare;
+			break;
+		case Exponent::cubic:
+			weightEffect = ImageProcessingTools::weightEffectCubic;
+			break;
+		case Exponent::quartet:
+			weightEffect = ImageProcessingTools::weightEffectQuartet;
+			break;
+		default:
+			weightEffect = ImageProcessingTools::weightEffectSquare;
+			break;
 		}
 
-		});
+		uint16_t threshold_i = threshold * 255u * 2u;//to int
+
+		parallel::parallel_for(0u, result.height, [&result, &input, &weightEffect, &threshold_i, &scaleIndex](uint32_t Y) {
+
+			auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
+			{
+				return static_cast<int64_t>(floorf(index * scaleIndex));
+			};
+
+			auto Row = GetFloorIndex(Y);
+
+			for (auto X = 0u; X < result.width; ++X)
+			{
+				auto Column = GetFloorIndex(X);
+
+				float32_t dx = X * scaleIndex - Column;
+				float32_t dy = Y * scaleIndex - Row;
+
+				RGBAColor_8i& rgba_i1 = input(Column + (0), Row + (0));
+				RGBAColor_8i& rgba_i2 = input(Column + (1), Row + (0));
+				RGBAColor_8i& rgba_i3 = input(Column + (0), Row + (1));
+				RGBAColor_8i& rgba_i4 = input(Column + (1), Row + (1));
+
+				//Calculate weight parameters
+				uint16_t gray1, gray2, gray3, gray4;
+
+				FastGray(rgba_i1, gray1);
+				FastGray(rgba_i2, gray2);
+				FastGray(rgba_i3, gray3);
+				FastGray(rgba_i4, gray4);
+
+				uint32_t graySum1_2 = gray1 + gray2;
+				uint32_t graySum_3_4 = gray3 + gray4;
+				uint32_t graySum1_3 = gray1 + gray3;
+				uint32_t graySum2_4 = gray2 + gray4;
+
+				//uint
+				bool notEdgeX = Min(graySum1_3, graySum2_4) + threshold_i >= Max(graySum1_3, graySum2_4);
+				bool notEdgeY = Min(graySum1_2, graySum_3_4) + threshold_i >= Max(graySum1_2, graySum_3_4);
+
+				float32_t dx_w, dy_w;
+				if (notEdgeX)
+				{
+					dx_w = dx;//bilinear
+				}
+				else
+				{
+					weightEffect(dx, dx_w);
+				}
+
+				if (notEdgeY)
+				{
+					dy_w = dy;//bilinear
+				}
+				else
+				{
+					weightEffect(dy, dy_w);
+				}
+
+				RGBAColor_32f rgba_f1(input(Column + (0), Row + (0)));
+				RGBAColor_32f rgba_f2(input(Column + (1), Row + (0)));
+				RGBAColor_32f rgba_f3(input(Column + (0), Row + (1)));
+				RGBAColor_32f rgba_f4(input(Column + (1), Row + (1)));
+
+				//Unrolling loops to enhance performance
+				LerpRGBA(rgba_f1, rgba_f2, dx_w);
+				LerpRGBA(rgba_f3, rgba_f4, dx_w);
+				LerpRGBA(rgba_f1, rgba_f3, dy_w);
+
+				result(X, Y) = rgba_f1.toRGBAColor_8i();
+			}
+
+			});
+	}
 	return true;
 }
 
-bool ImageProcessingTools::Zoom_CubicConvolutionSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& a)
+bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& a)
 {
 	if (input.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
 		return false;
@@ -110,7 +171,7 @@ bool ImageProcessingTools::Zoom_CubicConvolutionSampling4x4(TextureData& input, 
 			return static_cast<int64_t>(floorf(index * scaleIndex));
 		};
 
-		auto Formula = ImageProcessingTools::cubicConvolutionZoomFormula;
+		auto Formula = ImageProcessingTools::bicubicConvolutionZoomFormula;
 
 		auto Row = GetFloorIndex(Y);
 
