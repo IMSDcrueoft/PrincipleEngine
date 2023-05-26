@@ -641,11 +641,10 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 	std::cout << "Adoption edge threshold:" << threshold << '\n'
 		<< "Start processing . . ." << std::endl;
 
-
 	TextureData image, result;
 	importFile(image, pngfile);
 
-	if (ImageProcessingTools::Zoom_DefaultSampling2x2(image, result, zoomRatio, threshold, exponent))
+	if (ImageProcessingTools::Zoom_Default(image, result, zoomRatio, threshold, exponent))
 	{
 		image.clear();
 
@@ -687,7 +686,6 @@ void PngProcessingTools::zoomProgramBicubicConvolution(float32_t& zoomRatio, std
 
 	std::cout << "Adoption formula factor:" << a << '\n'
 		<< "Start processing . . ." << std::endl;
-
 
 	TextureData image, result;
 	importFile(image, pngfile);
@@ -954,7 +952,6 @@ void PngProcessingTools::vividnessAdjustmentColorProgram(float32_t& VividRatio, 
 		<< "Input Vivid factor:" << (1.0f + VividRatio) * 100.0f << "%\n" << std::endl;
 
 	Clamp(VividRatio, -1.0f, 254.0f);
-
 
 	std::cout << "Adoption Vivid factor:" << (1.0f + VividRatio) * 100.0f << "%\n"
 		<< "Start processing . . ." << std::endl;
@@ -1438,7 +1435,6 @@ void PngProcessingTools::mixedPicturesProgram(uint32_t& workMode, std::filesyste
 	void (*filteringMethod)(const RGBAColor_8i&, byte&, const RGBAColor_8i&, byte&) = nullptr;
 
 	Clamp(workMode, 1, 4);
-
 
 	if (workMode == 2)
 	{

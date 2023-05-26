@@ -1,6 +1,6 @@
 #include "Image.h"
 
-bool ImageProcessingTools::Zoom_DefaultSampling2x2(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& threshold, const Exponent& exponent)
+bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& threshold, const Exponent& exponent)
 {
 	if (input.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
 		return false;
@@ -23,7 +23,6 @@ bool ImageProcessingTools::Zoom_DefaultSampling2x2(TextureData& input, TextureDa
 	if (exponent == Exponent::one)//Bilinear
 	{
 		parallel::parallel_for(0u, result.height, [&result, &input, &scaleIndex](uint32_t Y) {
-
 			auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
 			{
 				return static_cast<int64_t>(floorf(index * scaleIndex));
@@ -50,7 +49,6 @@ bool ImageProcessingTools::Zoom_DefaultSampling2x2(TextureData& input, TextureDa
 
 				result(X, Y) = rgba_f1.toRGBAColor_8i();
 			}
-
 			});
 	}
 	else
@@ -74,10 +72,7 @@ bool ImageProcessingTools::Zoom_DefaultSampling2x2(TextureData& input, TextureDa
 			break;
 		}
 
-		uint16_t threshold_i = threshold * 255u * 2u;//to int
-
-		parallel::parallel_for(0u, result.height, [&result, &input, &weightEffect, &threshold_i, &scaleIndex](uint32_t Y) {
-
+		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &magnification, &weightEffect, &scaleIndex](uint32_t Y) {
 			auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
 			{
 				return static_cast<int64_t>(floorf(index * scaleIndex));
@@ -98,54 +93,65 @@ bool ImageProcessingTools::Zoom_DefaultSampling2x2(TextureData& input, TextureDa
 				RGBAColor_8i& rgba_i4 = input(Column + (1), Row + (1));
 
 				//Calculate weight parameters
-				uint16_t gray1, gray2, gray3, gray4;
+				int16_t grayLeft, grayRight, grayUp, grayDown, grayThis;
 
-				FastGray(rgba_i1, gray1);
-				FastGray(rgba_i2, gray2);
-				FastGray(rgba_i3, gray3);
-				FastGray(rgba_i4, gray4);
+				FastGray(input(Column + (-1), Row + (0)), grayLeft);
+				FastGray(input(Column + (1), Row + (0)), grayRight);
+				FastGray(input(Column + (0), Row + (-1)), grayUp);
+				FastGray(input(Column + (0), Row + (1)), grayDown);
+				FastGray(input(Column + (0), Row + (0)), grayThis);
 
-				uint32_t graySum1_2 = gray1 + gray2;
-				uint32_t graySum_3_4 = gray3 + gray4;
-				uint32_t graySum1_3 = gray1 + gray3;
-				uint32_t graySum2_4 = gray2 + gray4;
+				uint16_t numeratorX = abs(grayLeft - grayRight);
+				uint16_t numeratorY = abs(grayUp - grayDown);
+				uint16_t denominatorX = Max(abs(grayLeft - grayThis), abs(grayRight - grayThis));
+				uint16_t denominatorY = Max(abs(grayUp - grayThis), abs(grayDown - grayThis));
 
-				//uint
-				bool notEdgeX = Min(graySum1_3, graySum2_4) + threshold_i >= Max(graySum1_3, graySum2_4);
-				bool notEdgeY = Min(graySum1_2, graySum_3_4) + threshold_i >= Max(graySum1_2, graySum_3_4);
+				//fx,fy need clamp
+				float32_t fx = (denominatorX > 0) ? Min(static_cast<float32_t>(numeratorX) / denominatorX, 1.0f) : 0.0f;
+				float32_t fy = (denominatorY > 0) ? Min(static_cast<float32_t>(numeratorY) / denominatorY, 1.0f) : 0.0f;
 
 				float32_t dx_w, dy_w;
-				if (notEdgeX)
-				{
-					dx_w = dx;//bilinear
-				}
+				//default use bilinear
+				if (fx <= threshold)
+					dx_w = dx;
 				else
-				{
 					weightEffect(dx, dx_w);
-				}
 
-				if (notEdgeY)
-				{
-					dy_w = dy;//bilinear
-				}
+				if (fy <= threshold)
+					dy_w = dy;
 				else
-				{
 					weightEffect(dy, dy_w);
-				}
 
 				RGBAColor_32f rgba_f1(input(Column + (0), Row + (0)));
 				RGBAColor_32f rgba_f2(input(Column + (1), Row + (0)));
 				RGBAColor_32f rgba_f3(input(Column + (0), Row + (1)));
 				RGBAColor_32f rgba_f4(input(Column + (1), Row + (1)));
 
-				//Unrolling loops to enhance performance
 				LerpRGBA(rgba_f1, rgba_f2, dx_w);
 				LerpRGBA(rgba_f3, rgba_f4, dx_w);
 				LerpRGBA(rgba_f1, rgba_f3, dy_w);
+				//now rgba_f1 is result
 
-				result(X, Y) = rgba_f1.toRGBAColor_8i();
+				//RCAS (Robust Contrast Adaptive Sharpening)
+				float32_t grayMax = Max(grayLeft, grayRight, grayUp, grayDown, grayThis);
+				float32_t grayMin = Min(grayLeft, grayRight, grayUp, grayDown, grayThis);
+
+				//factor
+				float32_t w = magnification * Max(-grayMin / grayMax, (maxColorPix - grayMax) / (grayMin - maxColorPix)) * ColorPixTofloat * 0.25f;
+
+				RGBAColor_32f rgba_f(0.0f, 0.0f, 0.0f, 0.0f);
+
+				rgba_f += RGBAColor_32f(input(Column + (-1), Row + (0)));
+				rgba_f += RGBAColor_32f(input(Column + (+1), Row + (0)));
+				rgba_f += RGBAColor_32f(input(Column + (0), Row + (-1)));
+				rgba_f += RGBAColor_32f(input(Column + (0), Row + (1)));
+
+				rgba_f *= w;
+				rgba_f += rgba_f1;
+				rgba_f /= (4.0f * w + 1.0f);
+
+				result(X, Y) = rgba_f.toRGBAColor_8i();
 			}
-
 			});
 	}
 	return true;
@@ -165,7 +171,6 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 	resultRGBA.resize(static_cast<size_t>(result.width) * result.height);
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &a, &scaleIndex](uint32_t Y) {
-
 		auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
 		{
 			return static_cast<int64_t>(floorf(index * scaleIndex));
@@ -177,7 +182,6 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 
 		for (auto X = 0u; X < result.width; ++X)
 		{
-
 			auto Column = GetFloorIndex(X);
 
 			float32_t dx = X * scaleIndex - Column;
@@ -230,7 +234,6 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 
 			result(X, Y) = rgba_f.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -265,10 +268,8 @@ bool ImageProcessingTools::SharpenLaplace3x3(TextureData& input, TextureData& re
 	const float32_t center = 1.0f - (4.0f * oneHalfRootPlusOne) * factor;
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &outerNear, &outerFar, &center](uint32_t Y) {
-
 		for (auto X = 0u; X < result.width; ++X)
 		{
-
 			RGBAColor_32f rgba_f1(0.0f, 0.0f, 0.0f, 0.0f);
 			RGBAColor_32f rgba_f2(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -290,7 +291,6 @@ bool ImageProcessingTools::SharpenLaplace3x3(TextureData& input, TextureData& re
 
 			result(X, Y) = rgba_f1.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -325,7 +325,6 @@ bool ImageProcessingTools::SharpenGaussLaplace5x5(TextureData& input, TextureDat
 	const float32_t center = 1.0f - 12.0f * factor;
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &outerl2Far, &outerl2Near, &outerl1Near, &center](uint32_t Y) {
-
 		for (auto X = 0u; X < result.width; ++X)
 		{
 			RGBAColor_32f rgba_f1(0.0f, 0.0f, 0.0f, 0.0f);
@@ -365,7 +364,6 @@ bool ImageProcessingTools::SharpenGaussLaplace5x5(TextureData& input, TextureDat
 
 			result(X, Y) = rgba_f1.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -379,7 +377,6 @@ bool ImageProcessingTools::AecsHdrToneMapping(TextureData& inputOutput, const fl
 	inputOutput.clearImage();
 
 	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &lumRatio](uint32_t Y) {
-
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			RGBAColor_32f color(inputOutput(X, Y));
@@ -388,7 +385,6 @@ bool ImageProcessingTools::AecsHdrToneMapping(TextureData& inputOutput, const fl
 
 			inputOutput(X, Y) = color.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -402,12 +398,10 @@ bool ImageProcessingTools::ReverseColorImage(TextureData& inputOutput)
 	inputOutput.clearImage();
 
 	parallel::parallel_for(0u, inputOutput.height, [&inputOutput](uint32_t Y) {
-
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			ReverseColor(inputOutput(X, Y));
 		}
-
 		});
 	return true;
 }
@@ -425,14 +419,12 @@ bool ImageProcessingTools::Grayscale(TextureData& input, TextureData& result)
 	result.image.resize(input.getRGBA_uint8().size());
 
 	parallel::parallel_for(0u, input.height, [&input, &result](uint32_t Y) {
-
 		size_t offset = static_cast<size_t>(input.width) * Y;
 
 		for (auto X = 0u; X < input.width; ++X)
 		{
 			ImageProcessingTools::GrayColor(input(X, Y), result.image[offset + X]);
 		}
-
 		});
 	return true;
 }
@@ -478,7 +470,6 @@ bool ImageProcessingTools::VividnessAdjustment(TextureData& inputOutput, const f
 	inputOutput.clearImage();
 
 	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &vividRatio](uint32_t Y) {
-
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			RGBAColor_32f color(inputOutput(X, Y));
@@ -487,7 +478,6 @@ bool ImageProcessingTools::VividnessAdjustment(TextureData& inputOutput, const f
 
 			inputOutput(X, Y) = color.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -501,7 +491,6 @@ bool ImageProcessingTools::NatualVividnessAdjustment(TextureData& inputOutput, c
 	inputOutput.clearImage();
 
 	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &vividRatio](uint32_t Y) {
-
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			RGBAColor_32f color(inputOutput(X, Y));
@@ -510,7 +499,6 @@ bool ImageProcessingTools::NatualVividnessAdjustment(TextureData& inputOutput, c
 
 			inputOutput(X, Y) = color.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -528,14 +516,12 @@ bool ImageProcessingTools::Binarization(TextureData& input, TextureData& result,
 	result.image.resize(input.getRGBA_uint8().size());
 
 	parallel::parallel_for(0u, input.height, [&input, &result, &threshold](uint32_t Y) {
-
 		size_t offset = static_cast<size_t>(input.width) * Y;
 
 		for (auto X = 0u; X < input.width; ++X)
 		{
 			ImageProcessingTools::BinarizationColor(input(X, Y), threshold, result.image[offset + X]);
 		}
-
 		});
 	return true;
 }
@@ -552,16 +538,13 @@ bool ImageProcessingTools::Quaternization(TextureData& input, TextureData& resul
 	result.height = input.height;
 	result.image.resize(input.getRGBA_uint8().size());
 
-
 	parallel::parallel_for(0u, input.height, [&input, &result, &threshold](uint32_t Y) {
-
 		size_t offset = static_cast<size_t>(input.width) * Y;
 
 		for (auto X = 0u; X < input.width; ++X)
 		{
 			ImageProcessingTools::QuaternizationColor(input(X, Y), threshold, result.image[offset + X]);
 		}
-
 		});
 	return true;
 }
@@ -579,14 +562,12 @@ bool ImageProcessingTools::Hexadecimalization(TextureData& input, TextureData& r
 	result.image.resize(input.getRGBA_uint8().size());
 
 	parallel::parallel_for(0u, input.height, [&input, &result](uint32_t Y) {
-
 		size_t offset = static_cast<size_t>(input.width) * Y;
 
 		for (auto X = 0u; X < input.width; ++X)
 		{
 			ImageProcessingTools::HexadecimalizationColor(input(X, Y), result.image[offset + X]);
 		}
-
 		});
 	return true;
 }
@@ -605,7 +586,6 @@ bool ImageProcessingTools::SurfaceBlur(TextureData& input, TextureData& result, 
 	const float32_t denominator = 0.40f / threshold;
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &radius, &denominator](uint32_t Y) {
-
 		auto toGray = [](const RGBAColor_32f& rgba_f)
 		{
 			return fabsf((rgba_f.R + rgba_f.G + rgba_f.B) * 0.33333f);
@@ -639,7 +619,6 @@ bool ImageProcessingTools::SurfaceBlur(TextureData& input, TextureData& result, 
 
 			result(X, Y) = pixelSum.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
@@ -656,7 +635,6 @@ bool ImageProcessingTools::SobelEdgeEnhancement(TextureData& input, TextureData&
 	resultRGBA.resize(input.getRGBA_uint8().size());
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &thresholdMin, &thresholdMax, &strength](uint32_t Y) {
-
 		for (auto X = 0u; X < result.width; ++X)
 		{
 			RGBAColor_32f Gx(0.0f, 0.0f, 0.0f, 0.0f);
@@ -698,7 +676,6 @@ bool ImageProcessingTools::SobelEdgeEnhancement(TextureData& input, TextureData&
 			result(X, Y) = center.toRGBAColor_8i();
 			result(X, Y).A = alpha;
 		}
-
 		});
 	return true;
 }
@@ -712,7 +689,6 @@ bool ImageProcessingTools::MosaicPixelation(TextureData& inputOutput, const uint
 	inputOutput.clearImage();
 
 	parallel::parallel_for(0u, inputOutput.height, sideLength, [&inputOutput, &sideLength](uint32_t Y) {
-
 		//add column
 		for (auto h = 0u; (h < sideLength) && ((Y + h) < inputOutput.height); ++h)
 		{
@@ -758,7 +734,6 @@ bool ImageProcessingTools::MosaicPixelation(TextureData& inputOutput, const uint
 			std::copy(&inputOutput(0u, Y), &inputOutput(0u, Y) + inputOutput.width,
 				&inputOutput(0u, Y) + h * inputOutput.width);
 		}
-
 		});
 	return true;
 }
@@ -776,7 +751,6 @@ bool ImageProcessingTools::MixedPictures(TextureData& inputOutside, TextureData&
 	result.image.resize((static_cast<size_t>(result.width) * result.height) << 1u);//gray and alpha
 
 	parallel::parallel_for(0u, result.height, [&inputOutside, &inputInside, &result, &filteringMethod](uint32_t Y) {
-
 		size_t offset = (static_cast<size_t>(Y) * result.width) << 1u;
 
 		for (auto X = 0u; X < result.width; ++X)
@@ -789,7 +763,6 @@ bool ImageProcessingTools::MixedPictures(TextureData& inputOutside, TextureData&
 
 			offset += 2;
 		}
-
 		});
 	return true;
 }
@@ -856,7 +829,6 @@ bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, cons
 				ImageProcessingTools::ReverseColor(color);
 			}
 		}
-
 		});
 	return true;
 }
@@ -870,7 +842,6 @@ bool ImageProcessingTools::HSLAdjustment(TextureData& inputOutput, const float32
 	inputOutput.clearImage();
 
 	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &hueRatio, &saturationRatio, &lightnessRatio](uint32_t Y) {
-
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			RGBAColor_32f color(inputOutput(X, Y));
@@ -879,7 +850,6 @@ bool ImageProcessingTools::HSLAdjustment(TextureData& inputOutput, const float32
 
 			inputOutput(X, Y) = color.toRGBAColor_8i();
 		}
-
 		});
 	return true;
 }
