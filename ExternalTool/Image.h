@@ -50,8 +50,8 @@ static constexpr float32_t maxColorPix = 255.0f;
 static constexpr float32_t ColorPixTofloat = (1.0f / maxColorPix);
 
 //v param count max min
-template<typename T>
-const T& Min(const T& first, const T& next)
+template<typename T, typename T1>
+const T& Min(const T& first, const T1& next)
 {
 	return (first < next) ? first : next;
 }
@@ -62,8 +62,8 @@ const T& Min(const T& first, const Types& ...args)
 	return Min(first, Min(args...));
 }
 
-template<typename T>
-const T& Max(const T& first, const T& next)
+template<typename T, typename T1>
+const T& Max(const T& first, const T1& next)
 {
 	return (first > next) ? first : next;
 }
@@ -233,8 +233,7 @@ public:
 	{
 		one = 1,
 		square = 2,
-		cubic = 3,
-		quartet = 4,
+		quartet = 3
 	};
 
 protected:

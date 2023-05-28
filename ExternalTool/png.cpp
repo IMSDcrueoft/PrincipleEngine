@@ -158,7 +158,7 @@ void PngProcessingTools::help()
 		<< "[default zoom]\n"
 		<< "[zoom ratio(from 0.001 to 32.0)]\n"
 		<< "[edge threshold(from 0.0 to 1.0, 1.0 means bilinear)]\n"
-		<< "[Exponent(from 1 to 4:one, square, cubic, quartet)]\n"
+		<< "[Exponent(from 1 to 3:one, square, quartet)]\n"
 		<< '\n'
 		<< "./pngProcessor.exe filename.png Z[bicubic zoom] -1.0[formula factor:DF]\n"
 		<< "[bicubic zoom]\n"
@@ -334,7 +334,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		}
 
 		std::cout << "Input exponent factor:" << exponent << '\n';
-		Clamp(exponent, 1, 4);
+		Clamp(exponent, 1, 3);
 		std::cout << "Adoption exponent factor:";
 
 		if (exponent == 1)
@@ -349,13 +349,8 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 			else
 				if (exponent == 3)
 				{
-					std::cout << "Cubic\n";
+					std::cout << "Quartet\n";
 				}
-				else
-					if (exponent == 4)
-					{
-						std::cout << "Quartet\n";
-					}
 
 		PngProcessingTools::zoomProgramDefault(param1, pngfile, param2, (ImageProcessingTools::Exponent)exponent);
 		break;
@@ -631,7 +626,7 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 	std::cout << "Zoom Default:\n"
 		<< "Input zoom factor:" << zoomRatio << '\n';
 
-	Clamp(zoomRatio, 0.001f, 32.0f);
+	Clamp(zoomRatio, 0.0000001f, 32.0f);
 	std::cout << "Adoption zoom factor:" << zoomRatio << '\n';
 
 	std::cout << "Input edge threshold:" << threshold << '\n';
@@ -643,6 +638,9 @@ void PngProcessingTools::zoomProgramDefault(float32_t& zoomRatio, std::filesyste
 
 	TextureData image, result;
 	importFile(image, pngfile);
+
+	zoomRatio = Max(1.0f / Max(1.0f, image.width, image.height), zoomRatio);//the real scale
+	std::cout << "Real adoption zoom factor:" << zoomRatio << '\n';
 
 	if (ImageProcessingTools::Zoom_Default(image, result, zoomRatio, threshold, exponent))
 	{
@@ -677,7 +675,7 @@ void PngProcessingTools::zoomProgramBicubicConvolution(float32_t& zoomRatio, std
 	std::cout << "Zoom Bicubic:\n"
 		<< "Input zoom factor:" << zoomRatio << '\n';
 
-	Clamp(zoomRatio, 0.001f, 32.0f);
+	Clamp(zoomRatio, 0.0000001f, 32.0f);
 	std::cout << "Adoption zoom factor:" << zoomRatio << '\n';
 
 	std::cout << "Input formula factor:" << a << '\n';
@@ -689,6 +687,9 @@ void PngProcessingTools::zoomProgramBicubicConvolution(float32_t& zoomRatio, std
 
 	TextureData image, result;
 	importFile(image, pngfile);
+
+	zoomRatio = Max(1.0f / Max(1.0f, image.width, image.height), zoomRatio);//the real scale
+	std::cout << "Real adoption zoom factor:" << zoomRatio << '\n';
 
 	if (ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(image, result, zoomRatio, a))
 	{
@@ -1543,7 +1544,7 @@ void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfil
 #else
 			std::fill_n(reinterpret_cast<uint32_t*>(data + byteOffset * Y), image.width, 0x00'00'00'FFu);
 #endif
-		}
+	}
 
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
@@ -1551,7 +1552,7 @@ void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfil
 			.append(pngfile.extension());
 
 		exportFile(image.image.data(), image.width, image.height, resultname);
-	}
+}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;

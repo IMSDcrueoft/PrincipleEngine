@@ -20,22 +20,22 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 	pixA += pixB;             \
 }                             \
 
+	const auto CalcSrcIndex = [&scaleIndex](const auto& dstIndex) {
+		return Max(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
+	};
+
 	if (exponent == Exponent::one)//Bilinear
 	{
-		parallel::parallel_for(0u, result.height, [&result, &input, &scaleIndex](uint32_t Y) {
-			auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
+		parallel::parallel_for(0u, result.height, [&result, &input, &CalcSrcIndex](uint32_t Y) {
+			float32_t dy = CalcSrcIndex(Y);
+			uint32_t Row = dy;
+			dy -= Row;
+
+			for (uint32_t X = 0u; X < result.width; ++X)
 			{
-				return static_cast<int64_t>(floorf(index * scaleIndex));
-			};
-
-			auto Row = GetFloorIndex(Y);
-
-			for (auto X = 0u; X < result.width; ++X)
-			{
-				auto Column = GetFloorIndex(X);
-
-				float32_t dx = X * scaleIndex - Column;
-				float32_t dy = Y * scaleIndex - Row;
+				float32_t dx = CalcSrcIndex(X);
+				uint32_t Column = dx;
+				dx -= Column;
 
 				RGBAColor_32f rgba_f1(input(Column + (0), Row + (0)));
 				RGBAColor_32f rgba_f2(input(Column + (1), Row + (0)));
@@ -61,9 +61,6 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 		case Exponent::square:
 			weightEffect = ImageProcessingTools::weightEffectSquare;
 			break;
-		case Exponent::cubic:
-			weightEffect = ImageProcessingTools::weightEffectCubic;
-			break;
 		case Exponent::quartet:
 			weightEffect = ImageProcessingTools::weightEffectQuartet;
 			break;
@@ -72,20 +69,16 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 			break;
 		}
 
-		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &magnification, &weightEffect, &scaleIndex](uint32_t Y) {
-			auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
+		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &magnification, &weightEffect, &CalcSrcIndex](uint32_t Y) {
+			float32_t dy = CalcSrcIndex(Y);
+			uint32_t Row = dy;
+			dy -= Row;
+
+			for (uint32_t X = 0u; X < result.width; ++X)
 			{
-				return static_cast<int64_t>(floorf(index * scaleIndex));
-			};
-
-			auto Row = GetFloorIndex(Y);
-
-			for (auto X = 0u; X < result.width; ++X)
-			{
-				auto Column = GetFloorIndex(X);
-
-				float32_t dx = X * scaleIndex - Column;
-				float32_t dy = Y * scaleIndex - Row;
+				float32_t dx = CalcSrcIndex(X);
+				uint32_t Column = dx;
+				dx -= Column;
 
 				RGBAColor_8i& rgba_i1 = input(Column + (0), Row + (0));
 				RGBAColor_8i& rgba_i2 = input(Column + (1), Row + (0));
@@ -149,6 +142,7 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 				rgba_f *= w;
 				rgba_f += rgba_f1;
 				rgba_f /= (4.0f * w + 1.0f);
+				rgba_f.A = rgba_f1.A;//remind this
 
 				result(X, Y) = rgba_f.toRGBAColor_8i();
 			}
@@ -170,22 +164,22 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 	auto& resultRGBA = result.getRGBA_uint8();
 	resultRGBA.resize(static_cast<size_t>(result.width) * result.height);
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &a, &scaleIndex](uint32_t Y) {
-		auto GetFloorIndex = [&scaleIndex](const uint32_t& index)
+	const auto CalcSrcIndex = [&scaleIndex](const auto& dstIndex) {
+		return Max(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
+	};
+
+	constexpr auto& Formula = ImageProcessingTools::bicubicConvolutionZoomFormula;
+
+	parallel::parallel_for(0u, result.height, [&result, &input, &a, &CalcSrcIndex, &Formula](uint32_t Y) {
+		float32_t dy = CalcSrcIndex(Y);
+		uint32_t Row = dy;
+		dy -= Row;
+
+		for (uint32_t X = 0u; X < result.width; ++X)
 		{
-			return static_cast<int64_t>(floorf(index * scaleIndex));
-		};
-
-		auto Formula = ImageProcessingTools::bicubicConvolutionZoomFormula;
-
-		auto Row = GetFloorIndex(Y);
-
-		for (auto X = 0u; X < result.width; ++X)
-		{
-			auto Column = GetFloorIndex(X);
-
-			float32_t dx = X * scaleIndex - Column;
-			float32_t dy = Y * scaleIndex - Row;
+			float32_t dx = CalcSrcIndex(X);
+			uint32_t Column = dx;
+			dx -= Column;
 
 			//Construct the weight matrix
 			floatVec4 kernelX[4];
