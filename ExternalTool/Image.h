@@ -680,7 +680,7 @@ inline void ImageProcessingTools::GrayColor(const RGBAColor_8i& color, T& result
 template<typename T>
 inline void ImageProcessingTools::RGBtoHSL_L(const RGBAColor_8i& color, T& result)
 {
-	result = (static_cast<uint16_t>(Max(color.R, color.G, color.B) + Min(color.R, color.G, color.B)) >> 1u;
+	result = (static_cast<uint16_t>(Max(color.R, color.G, color.B)) + Min(color.R, color.G, color.B)) >> 1u;
 }
 
 inline void ImageProcessingTools::BinarizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result)
