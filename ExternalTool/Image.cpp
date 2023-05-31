@@ -1,4 +1,5 @@
 #include "Image.h"
+#include "../Math/RandomBase.h"
 
 bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& threshold, const Exponent& exponent)
 {
@@ -79,11 +80,6 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 				float32_t dx = CalcSrcIndex(X);
 				uint32_t Column = dx;
 				dx -= Column;
-
-				RGBAColor_8i& rgba_i1 = input(Column + (0), Row + (0));
-				RGBAColor_8i& rgba_i2 = input(Column + (1), Row + (0));
-				RGBAColor_8i& rgba_i3 = input(Column + (0), Row + (1));
-				RGBAColor_8i& rgba_i4 = input(Column + (1), Row + (1));
 
 				//Calculate weight parameters
 				int16_t grayLeft, grayRight, grayUp, grayDown, grayThis;
@@ -391,12 +387,10 @@ bool ImageProcessingTools::ReverseColorImage(TextureData& inputOutput)
 	//not need this time
 	inputOutput.clearImage();
 
-	parallel::parallel_for(0u, inputOutput.height, [&inputOutput](uint32_t Y) {
-		for (auto X = 0u; X < inputOutput.width; ++X)
-		{
-			ReverseColor(inputOutput(X, Y));
-		}
-		});
+	for (auto& color : inputOutput.getRGBA_uint8())
+	{
+		ReverseColor(color);
+	}
 	return true;
 }
 
@@ -716,7 +710,7 @@ bool ImageProcessingTools::MosaicPixelation(TextureData& inputOutput, const uint
 			inputOutput(X, Y) = rowSum.toRGBAColor_8i();
 
 			//set value to column
-			for (auto w = 1u; (X + w) < inputOutput.width; ++w)
+			for (auto w = 1u; (w < sideLength) && ((X + w) < inputOutput.width); ++w)
 			{
 				inputOutput((X + w), Y) = inputOutput(X, Y);
 			}
@@ -807,17 +801,24 @@ bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, cons
 	//not need this time
 	inputOutput.clearImage();
 
-	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, key](uint32_t Y) {
-		uint32_t tempKey = (key << (Y % 16)) | (key >> (32 - (Y % 16)));
+	//use key as seed
+	RandomBase engine;
+	engine.SetSeed(key);
+
+	//get keys
+	std::vector<uint32_t> keys(inputOutput.height);
+
+	for (auto& currentKey : keys) {
+		currentKey = engine.Rand(0x00'00'00'00u, 0xFF'FF'FF'FFu);
+	}
+
+	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &keys](uint32_t Y) {
+		uint32_t tempKey = keys[Y];
 
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			auto& color = inputOutput(X, Y);
-			color.R ^= tempKey;
-			color.G ^= tempKey >> 8;
-			color.B ^= tempKey >> 16;
-
-			tempKey = ((tempKey << (X % 16)) | (tempKey >> (32 - (X % 16))));
+			tempKey = color.data ^= tempKey;
 
 			if ((X + Y) % 2 == 0) {
 				ImageProcessingTools::ReverseColor(color);
