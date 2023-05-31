@@ -96,6 +96,7 @@ void Lerp(T& val1, const T1& val2, const T2& weight)
 
 #define _mm_mul_add_ps(a,b,c) _mm_add_ps(_mm_mul_ps((a),(b)),(c))
 #define _mm_fma_ps(a,b,c) _mm_mul_add_ps((a),(b),(c))
+
 /*
 * R8G8B8A8 color with uint8_t
 */
@@ -221,7 +222,8 @@ public:
 	void RGBtoHSL(RGBAColor_32f& outColor);
 	void HSLtoRGB(RGBAColor_32f& outColor);
 
-	void FMA(RGBAColor_32f& addResult, const RGBAColor_32f& mul1, const RGBAColor_32f& mul2);
+public:
+	static void FMA(const RGBAColor_32f& mul1, const RGBAColor_32f& mul2, const RGBAColor_32f& add, RGBAColor_32f& result);
 };
 using floatVec4 = RGBAColor_32f;
 using HSLAColor_32f = RGBAColor_32f;
@@ -241,6 +243,8 @@ protected:
 	static void FastGray(const RGBAColor_8i& color, T& result);//0 - 255
 	template<typename T>
 	static void GrayColor(const RGBAColor_8i& color, T& result);//0 - 255
+	template<typename T>
+	static void RGBtoHSL_L(const RGBAColor_8i& color, T& result);//rgb to hsl lightness
 
 	static void BinarizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result);//Too few colors, need to adjust the threshold
 	static void QuaternizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result);//Too few colors, need to adjust the threshold
@@ -251,18 +255,18 @@ protected:
 	static void ACESToneMappingColor(RGBAColor_32f& color, const float32_t& adapted_lum);
 	static void HSLAdjustmentColor(RGBAColor_32f& color, const float32_t& hueChange, const float32_t& saturationRatio, const float32_t& lightnessRatio);
 
-	static void MixedPicturesColor(const byte& colorOut, const byte& colorIn, byte& colorResult, byte& alphaResult);
-	static void filteringMethod1_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
-	static void filteringMethod1_2(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
-	static void filteringMethod2_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
-	static void filteringMethod1_3(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
-
 protected:
 	static float32_t bicubicConvolutionZoomFormula(const float32_t& a, const float32_t& x);
 
 	static void weightEffectSquare(const float32_t& dx, float32_t& weightResult);
 	static void weightEffectCubic(const float32_t& dx, float32_t& weightResult);
 	static void weightEffectQuartet(const float32_t& dx, float32_t& weightResult);
+
+	static void MixedPicturesColor(const byte& colorOut, const byte& colorIn, byte& colorResult, byte& alphaResult);
+	static void filteringMethod1_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
+	static void filteringMethod1_2(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
+	static void filteringMethod2_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
+	static void filteringMethod1_3(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
 
 public:
 	static bool Zoom_Default(TextureData& input, TextureData& result, const float32_t& magnification = 1.0f, const float32_t& threshold = 1.0f,
@@ -541,9 +545,9 @@ inline void RGBAColor_32f::HSLtoRGB(RGBAColor_32f& outColor)
 	outColor.A = this->Alpha;
 }
 
-inline void RGBAColor_32f::FMA(RGBAColor_32f& addResult, const RGBAColor_32f& mul1, const RGBAColor_32f& mul2)
+inline void RGBAColor_32f::FMA(const RGBAColor_32f& mul1, const RGBAColor_32f& mul2, const RGBAColor_32f& add, RGBAColor_32f& result)
 {
-	addResult.float32X4 = _mm_fma_ps(mul1.float32X4, mul2.float32X4, addResult.float32X4);
+	result.float32X4 = _mm_fma_ps(mul1.float32X4, mul2.float32X4, add.float32X4);
 }
 
 inline TextureData::TextureData(std::vector<RGBAColor_8i>& image_in, const uint32_t& width, const uint32_t& height)
@@ -671,6 +675,12 @@ inline void ImageProcessingTools::GrayColor(const RGBAColor_8i& color, T& result
 	sum = powf(sum, reciprocal);
 
 	result = static_cast<T>(sum * maxColorPix);
+}
+
+template<typename T>
+inline void ImageProcessingTools::RGBtoHSL_L(const RGBAColor_8i& color, T& result)
+{
+	result = (static_cast<uint16_t>(Max(color.R, color.G, color.B) + Min(color.R, color.G, color.B)) >> 1u;
 }
 
 inline void ImageProcessingTools::BinarizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result)
