@@ -792,7 +792,7 @@ bool ImageProcessingTools::PixelToRGB3x3(TextureData& input, TextureData& result
 	return true;
 }
 
-bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, const uint32_t& key)
+bool ImageProcessingTools::Encryption_xor(TextureData& inputOutput, const uint32_t& key)
 {
 	if (inputOutput.getRGBA_uint8().size() == 0)//Handle it well, otherwise there will be problems in parallel
 		return false;
@@ -800,21 +800,29 @@ bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, cons
 	//not need this time
 	inputOutput.clearImage();
 
-	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, key](uint32_t Y) {
-		uint32_t tempKey = (key << (Y % 16)) | (key >> (32 - (Y % 16)));
+	//create random engine with key
+	std::default_random_engine engine(key);
+	uint32_t key_base = (inputOutput.width << 16) ^ (inputOutput.height << 8) ^ key;
+
+	std::vector<uint32_t> keys_x(inputOutput.width);
+	std::vector<uint32_t> keys_y(inputOutput.height);
+
+	for (auto& k : keys_x)
+	{
+		k = engine();
+	}
+
+	for (auto& k : keys_y)
+	{
+		k = engine();
+	}
+
+	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &keys_x, &keys_y, &key_base](uint32_t Y) {
+		uint32_t key_base_y = keys_y[Y] ^ key_base;
 
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
-			auto& color = inputOutput(X, Y);
-			color.R ^= tempKey;
-			color.G ^= tempKey >> 8;
-			color.B ^= tempKey >> 16;
-
-			tempKey = ((tempKey << (X % 16)) | (tempKey >> (32 - (X % 16))));
-
-			if ((X + Y) % 2 == 0) {
-				ImageProcessingTools::ReverseColor(color);
-			}
+			inputOutput(X, Y).data ^= (key_base_y ^ keys_x[X]);
 		}
 
 		});

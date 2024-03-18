@@ -91,7 +91,7 @@ public:
 	static void mixedPicturesProgram(uint32_t& workMode, std::filesystem::path& pngfileOut, std::filesystem::path& pngfileIn);
 	static void pixelToRGB8_3x3Program(float32_t& brightness, std::filesystem::path& pngfile);
 	static void interlacedScanningProgram(std::filesystem::path& pngfile);
-	static void encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile);
+	static void encryption_xorProgram(uint32_t& xorKey, std::filesystem::path& pngfile);
 	static void hslAdjustMentProgram(float32_t& hueChange, float32_t& saturationRatio, float32_t& lightnessRatio, std::filesystem::path& pngfile);
 
 	//The following three methods rely on lodepng

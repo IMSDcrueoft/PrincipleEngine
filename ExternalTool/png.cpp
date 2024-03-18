@@ -292,7 +292,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		std::cout << "Too few parameters!\n";
 		help();
 		std::cout << "try run Encryption\n";
-		PngProcessingTools::encryption_xor_reverseProgram(key, pngfile);
+		PngProcessingTools::encryption_xorProgram(key, pngfile);
 
 		timer.TimerStop();
 
@@ -606,7 +606,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 			GetParam(3, key);
 		}
 
-		PngProcessingTools::encryption_xor_reverseProgram(key, pngfile);
+		PngProcessingTools::encryption_xorProgram(key, pngfile);
 		break;
 	default:
 		std::cout << "Error:unknown working mode.\n";
@@ -1560,7 +1560,7 @@ void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfil
 	}
 }
 
-void PngProcessingTools::encryption_xor_reverseProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
+void PngProcessingTools::encryption_xorProgram(uint32_t& xorKey, std::filesystem::path& pngfile)
 {
 	std::cout << "Encryption:\n"
 		<< "Start processing . . ." << std::endl;
@@ -1570,7 +1570,7 @@ void PngProcessingTools::encryption_xor_reverseProgram(uint32_t& xorKey, std::fi
 
 	bool useDefaultXorKey = ((xorKey == 0u) || (xorKey == 0xFF'FF'FF'FF));
 
-	if (useDefaultXorKey ? ImageProcessingTools::Encryption_xor_reverse(image) : ImageProcessingTools::Encryption_xor_reverse(image, xorKey))
+	if (useDefaultXorKey ? ImageProcessingTools::Encryption_xor(image) : ImageProcessingTools::Encryption_xor(image, xorKey))
 	{
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
