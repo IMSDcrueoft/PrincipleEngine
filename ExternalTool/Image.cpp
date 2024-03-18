@@ -1,5 +1,4 @@
 #include "Image.h"
-#include "../Math/RandomBase.h"
 
 bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result, const float32_t& magnification, const float32_t& threshold, const Exponent& exponent)
 {
@@ -23,7 +22,7 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 
 	const auto CalcSrcIndex = [&scaleIndex](const auto& dstIndex) {
 		return Max(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
-	};
+		};
 
 	if (exponent == Exponent::one)//Bilinear
 	{
@@ -162,7 +161,7 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 
 	const auto CalcSrcIndex = [&scaleIndex](const auto& dstIndex) {
 		return Max(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
-	};
+		};
 
 	constexpr auto& Formula = ImageProcessingTools::bicubicConvolutionZoomFormula;
 
@@ -575,9 +574,9 @@ bool ImageProcessingTools::SurfaceBlur(TextureData& input, TextureData& result, 
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &radius, &denominator](uint32_t Y) {
 		auto toGray = [](const RGBAColor_32f& rgba_f)
-		{
-			return fabsf((rgba_f.R + rgba_f.G + rgba_f.B) * 0.33333f);
-		};
+			{
+				return fabsf((rgba_f.R + rgba_f.G + rgba_f.B) * 0.33333f);
+			};
 
 		for (auto X = 0u; X < result.width; ++X)
 		{
@@ -801,29 +800,23 @@ bool ImageProcessingTools::Encryption_xor_reverse(TextureData& inputOutput, cons
 	//not need this time
 	inputOutput.clearImage();
 
-	//use key as seed
-	RandomBase engine;
-	engine.SetSeed(key);
-
-	//get keys
-	std::vector<uint32_t> keys(inputOutput.height);
-
-	for (auto& currentKey : keys) {
-		currentKey = engine.Rand(0x00'00'00'00u, 0xFF'FF'FF'FFu);
-	}
-
-	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &keys](uint32_t Y) {
-		uint32_t tempKey = keys[Y];
+	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, key](uint32_t Y) {
+		uint32_t tempKey = (key << (Y % 16)) | (key >> (32 - (Y % 16)));
 
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
 			auto& color = inputOutput(X, Y);
-			tempKey = color.data ^= tempKey;
+			color.R ^= tempKey;
+			color.G ^= tempKey >> 8;
+			color.B ^= tempKey >> 16;
+
+			tempKey = ((tempKey << (X % 16)) | (tempKey >> (32 - (X % 16))));
 
 			if ((X + Y) % 2 == 0) {
 				ImageProcessingTools::ReverseColor(color);
 			}
 		}
+
 		});
 	return true;
 }
