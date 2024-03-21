@@ -731,84 +731,9 @@ inline void ImageProcessingTools::HexadecimalizationColor(const RGBAColor_8i& co
 	uint16_t avg;
 	ImageProcessingTools::FastGray(color, avg);
 
-	if (avg >= 247u)
-	{
-		result = 0b1111'1111u;
-	}
-	else
-		if (avg >= 230u)
-		{
-			result = 0b1110'1110u;
-		}
-		else
-			if (avg >= 213u)
-			{
-				result = 0b1101'1101u;
-			}
-			else
-				if (avg >= 196u)
-				{
-					result = 0b1100'1100u;
-				}
-				else
-					if (avg >= 179u)
-					{
-						result = 0b1011'1011u;
-					}
-					else
-						if (avg >= 162u)
-						{
-							result = 0b1010'1010u;
-						}
-						else
-							if (avg >= 145u)
-							{
-								result = 0b1001'1001u;
-							}
-							else
-								if (avg >= 128u)
-								{
-									result = 0b1000'1000u;
-								}
-								else
-									if (avg >= 111u)
-									{
-										result = 0b0111'0111u;
-									}
-									else
-										if (avg >= 94u)
-										{
-											result = 0b0110'0110u;
-										}
-										else
-											if (avg >= 77u)
-											{
-												result = 0b0101'0101u;
-											}
-											else
-												if (avg >= 60u)
-												{
-													result = 0b0100'0100u;
-												}
-												else
-													if (avg >= 43u)
-													{
-														result = 0b0011'0011u;
-													}
-													else
-														if (avg >= 26u)
-														{
-															result = 0b0010'0010u;
-														}
-														else
-															if (avg >= 9u)
-															{
-																result = 0b0001'0001u;
-															}
-															else
-															{
-																result = 0b0000'0000u;
-															}
+	//uint16 won't overflow
+	avg = (avg + 8u) / 17u;
+	result = static_cast<byte>(avg | (avg << 4u));
 }
 
 inline void ImageProcessingTools::ReverseColor(RGBAColor_8i& color)
