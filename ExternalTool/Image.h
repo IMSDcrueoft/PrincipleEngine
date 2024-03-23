@@ -695,35 +695,17 @@ inline void ImageProcessingTools::BinarizationColor(const RGBAColor_8i& color, c
 
 inline void ImageProcessingTools::QuaternizationColor(const RGBAColor_8i& color, const float32_t& threshold, byte& result)
 {
-	float32_t avg;
+	uint16_t avg;
 	ImageProcessingTools::FastGray(color, avg);
 
-	float32_t l1 = 171.0f;
-	float32_t l2 = 86.0f;
-	float32_t l3 = 1.0f;
-
-	Lerp(l1, 255.0f, threshold);
-	Lerp(l2, 170.0f, threshold);
-	Lerp(l3, 85.0f, threshold);
-
-	if (avg >= l1)
-	{
-		result = 0b1111'1111u;
-	}
-	else
-		if (avg >= l2)
-		{
-			result = 0b1010'1010u;
-		}
-		else
-			if (avg >= l3)
-			{
-				result = 0b0101'0101u;
-			}
-			else
-			{
-				result = 0b0000'0000u;
-			}
+	//uint16 won't overflow
+	// +(1-threshold) * 85 + 1
+	avg += static_cast<uint16_t>(86.0f - 85.0f * threshold);
+	// /85
+	avg = ((avg << 1u) + avg) >> 8u;
+	// *85
+	avg += (avg << 6u) + (avg << 4u) + (avg << 2u);
+	result = static_cast<byte>(avg);
 }
 
 inline void ImageProcessingTools::HexadecimalizationColor(const RGBAColor_8i& color, byte& result)
