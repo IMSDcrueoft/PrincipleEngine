@@ -732,8 +732,12 @@ inline void ImageProcessingTools::HexadecimalizationColor(const RGBAColor_8i& co
 	ImageProcessingTools::FastGray(color, avg);
 
 	//uint16 won't overflow
-	avg = (avg + 8u) / 17u;
-	result = static_cast<byte>(avg | (avg << 4u));
+	// +8/17
+	avg += 8u;
+	avg = ((avg << 4u) - avg) >> 8u;
+	// *17
+	avg |= avg << 4u;
+	result = static_cast<byte>(avg);
 }
 
 inline void ImageProcessingTools::ReverseColor(RGBAColor_8i& color)
