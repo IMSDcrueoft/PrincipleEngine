@@ -5243,6 +5243,7 @@ uint32_t lodepng_decode(byte** out, uint32_t* w, uint32_t* h,
 		}
 		else state->error = lodepng_convert(*out, data, &state->info_raw,
 			&state->info_png.color, *w, *h);
+		lodepng_free(*out);//free it
 		lodepng_free(data);
 	}
 	return state->error;
