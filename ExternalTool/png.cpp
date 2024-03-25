@@ -23,6 +23,7 @@ so you should also comply with the requirements of its header declaration
 */
 
 #include "png.h"
+#include "crc32.h"
 
 void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pngfile)
 {
@@ -270,6 +271,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	int32_t radius = 1;
 
 	uint32_t key = 0u;
+	std::string keywords;
 
 	timer.TimerStart();
 
@@ -603,7 +605,8 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	case (int)Mode::Encryption:
 		if (argCount > 3)
 		{
-			GetParam(3, key);
+			GetParam(3, keywords);
+			key = xcrc32(keywords.data(), keywords.length(), key);
 		}
 
 		PngProcessingTools::encryption_xorProgram(key, pngfile);

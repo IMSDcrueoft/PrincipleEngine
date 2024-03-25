@@ -38,13 +38,7 @@ of the project, and can no longer be compiled using the C standard,and must be c
 #endif // !IMSD_SOURCE_CODE_MODIFICATION
 
 #include <string.h> /*for size_t*/
-
-using STR = char*;
-using CSTR = const char*;
-using WSTR = wchar_t*;
-using CWSTR = const wchar_t*;
-using byte = unsigned char;
-using unknown_pointer = void*;
+#include "basedef.h"
 
 extern CSTR LODEPNG_VERSION_STRING;
 

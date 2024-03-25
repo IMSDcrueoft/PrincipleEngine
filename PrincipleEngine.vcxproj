@@ -51,7 +51,9 @@
     <ClInclude Include="CORE\ShadowMapper.h" />
     <ClInclude Include="CORE\UploadBuffer.h" />
     <ClInclude Include="ExternalTool\AdaptString.h" />
+    <ClInclude Include="ExternalTool\basedef.h" />
     <ClInclude Include="ExternalTool\CppParallelAccelerator.h" />
+    <ClInclude Include="ExternalTool\crc32.h" />
     <ClInclude Include="ExternalTool\Image.h" />
     <ClInclude Include="ExternalTool\lodepng.h" />
     <ClInclude Include="ExternalTool\png.h" />

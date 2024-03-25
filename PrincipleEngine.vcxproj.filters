@@ -269,6 +269,12 @@
     <ClInclude Include="CORE\ShadowMapper.h">
       <Filter>Core\Engine\头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ExternalTool\basedef.h">
+      <Filter>ExternalTool\PngProcessor\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalTool\crc32.h">
+      <Filter>ExternalTool\PngProcessor\头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CORE\D3D12App.cpp">

@@ -11,6 +11,7 @@
 #include <tuple>
 #include <thread>
 #include <random>
+#include "basedef.h"
 #include "CppParallelAccelerator.h"
 
 /*
@@ -33,16 +34,6 @@ namespace parallel = concurrency;
 #else
 using parallel = CppParallelAccelerator;
 #endif //PARALLELISM
-
-using STR = char*;
-using CSTR = const char*;
-using WSTR = wchar_t*;
-using CWSTR = const wchar_t*;
-using byte = unsigned char;
-using unknown_pointer = void*;
-
-using float32_t = float;
-using float64_t = double;
 
 static constexpr float32_t pi = 3.1415926f;
 static constexpr float32_t degToRad = pi / 180.0f;

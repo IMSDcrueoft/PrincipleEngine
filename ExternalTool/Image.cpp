@@ -818,11 +818,16 @@ bool ImageProcessingTools::Encryption_xor(TextureData& inputOutput, const uint32
 	}
 
 	parallel::parallel_for(0u, inputOutput.height, [&inputOutput, &keys_x, &keys_y, &key_base](uint32_t Y) {
-		uint32_t key_base_y = keys_y[Y] ^ key_base;
+		uint32_t state_key = (key_base >> (Y % 32u)) | (key_base << (32u - (Y % 32u)));
 
 		for (auto X = 0u; X < inputOutput.width; ++X)
 		{
-			inputOutput(X, Y).data ^= (key_base_y ^ keys_x[X]);
+			inputOutput(X, Y).data ^= (keys_y[Y] ^ keys_x[X] ^ state_key);
+
+			//do xorshift
+			state_key ^= state_key << 13u;
+			state_key ^= state_key >> 17u;
+			state_key ^= state_key << 5;
 		}
 
 		});
