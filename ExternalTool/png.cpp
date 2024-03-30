@@ -29,7 +29,11 @@ void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pn
 {
 	auto path = AdaptString::toString(pngfile.wstring());
 
+	clockTimer timer;
+
+	timer.TimerStart();
 	uint32_t error = lodepng::decode(data.image, data.width, data.height, path);
+	timer.TimerStop();
 
 	//if there's an error, display it
 	if (error)
@@ -37,6 +41,8 @@ void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pn
 		std::cout << "Decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 		exit(0);
 	}
+
+	std::cout << "=> decode time used:" << timer.getTime() << "(second)" << std::endl;
 }
 
 void PngProcessingTools::exportFile(TextureData& result, std::wstring& resultname, const LodePNGColorType& colorType, const uint32_t& bitdepth)
@@ -47,8 +53,13 @@ void PngProcessingTools::exportFile(TextureData& result, std::wstring& resultnam
 	}
 	else
 	{
+		clockTimer timer;
+
 		auto path = AdaptString::toString(resultname);
+
+		timer.TimerStart();
 		uint32_t error = lodepng::encode(path, result.image, result.width, result.height, colorType, bitdepth);
+		timer.TimerStop();
 
 		if (error)
 		{
@@ -56,7 +67,8 @@ void PngProcessingTools::exportFile(TextureData& result, std::wstring& resultnam
 			exit(0);
 		}
 
-		std::cout << "Result filename:" << path << '\n' << std::endl;
+		std::cout << "=> Result filename:" << path << '\n' <<
+			"=> encode time used:" << timer.getTime() << "(second)" << std::endl;
 	}
 }
 
@@ -112,8 +124,13 @@ void PngProcessingTools::exportFile(const byte* result, const uint32_t& width, c
 	}
 	else
 	{
+		clockTimer timer;
+
 		auto path = AdaptString::toString(resultname);
+
+		timer.TimerStart();
 		uint32_t error = lodepng::encode(path, result, width, height, colorType, bitdepth);
+		timer.TimerStop();
 
 		if (error)
 		{
@@ -121,7 +138,8 @@ void PngProcessingTools::exportFile(const byte* result, const uint32_t& width, c
 			exit(0);
 		}
 
-		std::cout << "Result filename:" << path << '\n' << std::endl;
+		std::cout << "=> Result filename:" << path << '\n' <<
+			"=> encode time used:" << timer.getTime() << "(second)" << std::endl;
 	}
 }
 
