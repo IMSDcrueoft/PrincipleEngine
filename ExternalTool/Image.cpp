@@ -98,7 +98,7 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 				//Calculate weight parameters
 				const auto& grayLeft = grayMap[Row + (0)][max(Column + (-1), 0)];
 				const auto& grayRight = grayMap[Row + (0)][min(Column + (1), input.width - 1)];
-				const auto& grayUp = grayMap[max(Row + (-1), 0u)][Column + (0)];
+				const auto& grayUp = grayMap[max(Row + (-1), 0)][Column + (0)];
 				const auto& grayDown = grayMap[min(Row + (1), input.height - 1)][Column + (0)];
 				const auto& grayThis = grayMap[Row + (0)][Column + (0)];
 
