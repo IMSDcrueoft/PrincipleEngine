@@ -69,25 +69,38 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 
 		float32_t mag_colorToPix_quaurtet = magnification * ColorPixTofloat * 0.25f;
 
-		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &mag_colorToPix_quaurtet, &weightEffect, &CalcSrcIndex](uint32_t Y) {
+		//calc and cache the grayscale
+		std::vector<std::vector<int16_t>> grayMap(input.height);
+		for (auto& column : grayMap)
+		{
+			column.resize(input.width);
+		}
+
+		//calc the grayMap first
+		parallel::parallel_for(0u, input.height, [&input, &grayMap](uint32_t Y) {
+			for (uint32_t X = 0u; X < input.width; ++X)
+			{
+				FastGray(input(X, Y), grayMap[Y][X]);
+			}
+			});
+
+		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &grayMap, &mag_colorToPix_quaurtet, &weightEffect, &CalcSrcIndex](uint32_t Y) {
 			float32_t dy = CalcSrcIndex(Y);
-			uint32_t Row = dy;
+			int64_t Row = dy;
 			dy -= Row;
 
 			for (uint32_t X = 0u; X < result.width; ++X)
 			{
 				float32_t dx = CalcSrcIndex(X);
-				uint32_t Column = dx;
+				int64_t Column = dx;
 				dx -= Column;
 
 				//Calculate weight parameters
-				int16_t grayLeft, grayRight, grayUp, grayDown, grayThis;
-
-				FastGray(input(Column + (-1), Row + (0)), grayLeft);
-				FastGray(input(Column + (1), Row + (0)), grayRight);
-				FastGray(input(Column + (0), Row + (-1)), grayUp);
-				FastGray(input(Column + (0), Row + (1)), grayDown);
-				FastGray(input(Column + (0), Row + (0)), grayThis);
+				const auto& grayLeft = grayMap[Row + (0)][max(Column + (-1), 0)];
+				const auto& grayRight = grayMap[Row + (0)][min(Column + (1), input.width - 1)];
+				const auto& grayUp = grayMap[max(Row + (-1), 0u)][Column + (0)];
+				const auto& grayDown = grayMap[min(Row + (1), input.height - 1)][Column + (0)];
+				const auto& grayThis = grayMap[Row + (0)][Column + (0)];
 
 				int16_t numeratorX = abs(grayLeft - grayRight);
 				int16_t numeratorY = abs(grayUp - grayDown);
@@ -119,7 +132,7 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 				RGBAColor_32f rgba_f(0.0f, 0.0f, 0.0f, 0.0f);
 
 				rgba_f += RGBAColor_32f(input(Column + (-1), Row + (0)));
-				rgba_f += RGBAColor_32f(input(Column + (+1), Row + (0)));
+				rgba_f += RGBAColor_32f(input(Column + (1), Row + (0)));
 				rgba_f += RGBAColor_32f(input(Column + (0), Row + (-1)));
 				rgba_f += RGBAColor_32f(input(Column + (0), Row + (1)));
 
@@ -156,13 +169,13 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 
 	parallel::parallel_for(0u, result.height, [&result, &input, &a, &CalcSrcIndex, &Formula](uint32_t Y) {
 		float32_t dy = CalcSrcIndex(Y);
-		uint32_t Row = dy;
+		int64_t Row = dy;
 		dy -= Row;
 
 		for (uint32_t X = 0u; X < result.width; ++X)
 		{
 			float32_t dx = CalcSrcIndex(X);
-			uint32_t Column = dx;
+			int64_t Column = dx;
 			dx -= Column;
 
 			//Construct the weight matrix
@@ -245,8 +258,8 @@ bool ImageProcessingTools::SharpenLaplace3x3(TextureData& input, TextureData& re
 	const float32_t outerFar = factor * oneHalfRoot;
 	const float32_t center = 1.0f - (4.0f * oneHalfRootPlusOne) * factor;
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &outerNear, &outerFar, &center](uint32_t Y) {
-		for (auto X = 0u; X < result.width; ++X)
+	parallel::parallel_for(0u, result.height, [&result, &input, &outerNear, &outerFar, &center](int64_t Y) {
+		for (int64_t X = 0u; X < result.width; ++X)
 		{
 			RGBAColor_32f rgba_f1(0.0f, 0.0f, 0.0f, 0.0f);
 			RGBAColor_32f rgba_f2(0.0f, 0.0f, 0.0f, 0.0f);
@@ -302,8 +315,8 @@ bool ImageProcessingTools::SharpenGaussLaplace5x5(TextureData& input, TextureDat
 	//const float32_t outerl1Far = 0.0f;
 	const float32_t center = 1.0f - 12.0f * factor;
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &outerl2Far, &outerl2Near, &outerl1Near, &center](uint32_t Y) {
-		for (auto X = 0u; X < result.width; ++X)
+	parallel::parallel_for(0u, result.height, [&result, &input, &outerl2Far, &outerl2Near, &outerl1Near, &center](int64_t Y) {
+		for (int64_t X = 0u; X < result.width; ++X)
 		{
 			RGBAColor_32f rgba_f1(0.0f, 0.0f, 0.0f, 0.0f);
 			RGBAColor_32f rgba_f2(0.0f, 0.0f, 0.0f, 0.0f);
@@ -610,8 +623,8 @@ bool ImageProcessingTools::SobelEdgeEnhancement(TextureData& input, TextureData&
 	auto& resultRGBA = result.getRGBA_uint8();
 	resultRGBA.resize(input.getRGBA_uint8().size());
 
-	parallel::parallel_for(0u, result.height, [&result, &input, &thresholdMin, &thresholdMax, &strength](uint32_t Y) {
-		for (auto X = 0u; X < result.width; ++X)
+	parallel::parallel_for(0u, result.height, [&result, &input, &thresholdMin, &thresholdMax, &strength](int64_t Y) {
+		for (int64_t X = 0u; X < result.width; ++X)
 		{
 			RGBAColor_32f Gx(0.0f, 0.0f, 0.0f, 0.0f);
 			RGBAColor_32f Gy(0.0f, 0.0f, 0.0f, 0.0f);
@@ -813,7 +826,7 @@ bool ImageProcessingTools::Encryption_xor(TextureData& inputOutput, const uint32
 		{
 			inputOutput(X, Y).data ^= (keys_y[Y] ^ keys_x[X] ^ state_key);
 
-			//do xorshift
+			//do xorshift 32
 			state_key ^= state_key << 13u;
 			state_key ^= state_key >> 17u;
 			state_key ^= state_key << 5;

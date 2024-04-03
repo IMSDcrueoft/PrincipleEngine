@@ -25,6 +25,10 @@ so you should also comply with the requirements of its header declaration
 #include "png.h"
 #include "crc32.h"
 
+#ifndef FUNC_LIMIT
+#define FUNC_LIMIT false
+#endif // !
+
 void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pngfile)
 {
 	auto path = AdaptString::toString(pngfile.wstring());
@@ -91,9 +95,9 @@ void PngProcessingTools::exportFile(const byte* result, const uint32_t& width, c
 			allthreads.reserve(splitNum);
 
 			auto exportSplitSlice = [&width, &colorType, &bitdepth](const byte* resultPart, uint32_t heightPart, std::wstring resultNamePart)
-			{
-				exportFile(resultPart, width, heightPart, resultNamePart, colorType, bitdepth);
-			};
+				{
+					exportFile(resultPart, width, heightPart, resultNamePart, colorType, bitdepth);
+				};
 
 			for (size_t Current = 0u, currentSlice = 1u, size = ((static_cast<size_t>(width) * height) << 2u); Current < size; Current += byteSplitInterval, ++currentSlice)
 			{
@@ -145,6 +149,7 @@ void PngProcessingTools::exportFile(const byte* result, const uint32_t& width, c
 
 void PngProcessingTools::help()
 {
+#if !FUNC_LIMIT
 	std::cout << "Check Help Info.\n\n"
 		<< "Help:[---] is a prompt, not an input.[DF] means it has a default value.\n"
 		<< "Startup parameters--->\n"
@@ -268,6 +273,7 @@ void PngProcessingTools::help()
 		<< "[Encryption]\n"
 		<< "[excrtption key(>0)]"
 		<< std::endl;
+#endif // FUNC_LIMIT
 }
 
 void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
@@ -325,14 +331,15 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	iss >> mode;
 
 	auto GetParam = [&iss, &argValues](const uint32_t& id, auto& target)
-	{
-		iss.clear();
-		iss.str(argValues[id]);
-		iss >> target;
-	};
+		{
+			iss.clear();
+			iss.str(argValues[id]);
+			iss >> target;
+		};
 
 	switch (mode)
 	{
+#if !FUNC_LIMIT
 	case (int)Mode::zoom:
 		param1 = 0.5f;
 		param2 = 1.0f;
@@ -619,6 +626,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 	case (int)Mode::InterlacedScanning:
 		PngProcessingTools::interlacedScanningProgram(pngfile);
 		break;
+#endif
 	case (int)Mode::encryption:
 	case (int)Mode::Encryption:
 		if (argCount > 3)
@@ -946,7 +954,7 @@ void PngProcessingTools::channelGrayColorProgram(std::filesystem::path& pngfile)
 
 		auto exportChannel = [](TextureData* result, std::wstring* resultname) {
 			PngProcessingTools::exportFile(result->image.data(), result->width, result->height, *resultname, LodePNGColorType::LCT_GREY);
-		};
+			};
 
 		std::thread RedChannel(exportChannel, &imageR, &resultnameR);
 		std::thread GreenChannel(exportChannel, &imageG, &resultnameG);
@@ -1161,9 +1169,9 @@ void PngProcessingTools::fastSplitHorizonProgram(uint32_t& splitInterval, std::f
 		allthreads.reserve(splitNum);
 
 		auto exportSplitSlice = [&image](const byte* result, uint32_t height, std::wstring resultName)
-		{
-			PngProcessingTools::exportFile(result, image.width, height, resultName);
-		};
+			{
+				PngProcessingTools::exportFile(result, image.width, height, resultName);
+			};
 
 		std::wstring resultnamepart;
 
@@ -1255,9 +1263,9 @@ void PngProcessingTools::blockSplitProgram(uint32_t& horizontalInterval, uint32_
 		size_t byteOffset = 0u;
 
 		auto exportSplitSlice = [](const byte* result, uint32_t width, uint32_t height, std::wstring resultName)
-		{
-			PngProcessingTools::exportFile(result, width, height, resultName);
-		};
+			{
+				PngProcessingTools::exportFile(result, width, height, resultName);
+			};
 
 		std::wstring resultnamepart;
 
@@ -1565,7 +1573,7 @@ void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfil
 #else
 			std::fill_n(reinterpret_cast<uint32_t*>(data + byteOffset * Y), image.width, 0x00'00'00'FFu);
 #endif
-	}
+		}
 
 		std::wstring resultname;
 		resultname.append(pngfile.parent_path()).append(L"/").append(pngfile.stem())
@@ -1573,7 +1581,7 @@ void PngProcessingTools::interlacedScanningProgram(std::filesystem::path& pngfil
 			.append(pngfile.extension());
 
 		exportFile(image.image.data(), image.width, image.height, resultname);
-}
+	}
 	else
 	{
 		std::cout << "Something wrong in convert." << std::endl;

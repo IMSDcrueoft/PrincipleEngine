@@ -42,6 +42,9 @@ static constexpr float32_t radToDeg = 180.0f / pi;
 static constexpr float32_t maxColorPix = 255.0f;
 static constexpr float32_t ColorPixTofloat = (1.0f / maxColorPix);
 
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+
 //v param count max min
 template<typename T, typename T1>
 const T& Min(const T& first, const T1& next)
@@ -127,7 +130,7 @@ public:
 
 	std::vector<RGBAColor_8i>& getRGBA_uint8();
 
-	RGBAColor_8i& operator()(int32_t column, int32_t row);
+	RGBAColor_8i& operator()(int64_t column, int64_t row);
 
 	byte& operator[](const size_t& index);
 
@@ -578,7 +581,7 @@ inline std::vector<RGBAColor_8i>& TextureData::getRGBA_uint8()
 	return this->imageRGBA_uint8;
 }
 
-inline RGBAColor_8i& TextureData::operator()(int32_t column, int32_t row)
+inline RGBAColor_8i& TextureData::operator()(int64_t column, int64_t row)
 {
 	//assert(row >= 0 && "row out of image range.");
 	//assert(row < width && "row out of image range.");
