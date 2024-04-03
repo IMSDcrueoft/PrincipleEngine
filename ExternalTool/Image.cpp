@@ -21,7 +21,7 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 }                             \
 
 	const auto CalcSrcIndex = [&scaleIndex](const auto& dstIndex) {
-		return Max(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
+		return std::fmaxf(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
 		};
 
 	if (exponent == Exponent::one)//Bilinear
@@ -54,22 +54,22 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 	else
 	{
 		//the weight effect
-		void(*weightEffect)(const float32_t&, float32_t&) = nullptr;
+		float32_t(*weightEffect)(const float32_t&) = nullptr;
 
 		switch (exponent)
 		{
-		case Exponent::square:
-			weightEffect = ImageProcessingTools::weightEffectSquare;
-			break;
 		case Exponent::quartet:
 			weightEffect = ImageProcessingTools::weightEffectQuartet;
 			break;
+		case Exponent::square:
 		default:
 			weightEffect = ImageProcessingTools::weightEffectSquare;
 			break;
 		}
 
-		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &magnification, &weightEffect, &CalcSrcIndex](uint32_t Y) {
+		float32_t mag_colorToPix_quaurtet = magnification * ColorPixTofloat * 0.25f;
+
+		parallel::parallel_for(0u, result.height, [&result, &input, &threshold, &mag_colorToPix_quaurtet, &weightEffect, &CalcSrcIndex](uint32_t Y) {
 			float32_t dy = CalcSrcIndex(Y);
 			uint32_t Row = dy;
 			dy -= Row;
@@ -89,26 +89,22 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 				FastGray(input(Column + (0), Row + (1)), grayDown);
 				FastGray(input(Column + (0), Row + (0)), grayThis);
 
-				uint16_t numeratorX = abs(grayLeft - grayRight);
-				uint16_t numeratorY = abs(grayUp - grayDown);
-				uint16_t denominatorX = Max(abs(grayLeft - grayThis), abs(grayRight - grayThis));
-				uint16_t denominatorY = Max(abs(grayUp - grayThis), abs(grayDown - grayThis));
+				int16_t numeratorX = abs(grayLeft - grayRight);
+				int16_t numeratorY = abs(grayUp - grayDown);
+				int16_t denominatorX = Max(abs(grayLeft - grayThis), abs(grayRight - grayThis));
+				int16_t denominatorY = Max(abs(grayUp - grayThis), abs(grayDown - grayThis));
 
-				//fx,fy need clamp
-				float32_t fx = (denominatorX > 0) ? Min(static_cast<float32_t>(numeratorX) / denominatorX, 1.0f) : 0.0f;
-				float32_t fy = (denominatorY > 0) ? Min(static_cast<float32_t>(numeratorY) / denominatorY, 1.0f) : 0.0f;
-
-				float32_t dx_w, dy_w;
+				//if do Min() fx,fy need clamp else not
 				//default use bilinear
-				if (fx <= threshold)
-					dx_w = dx;
-				else
-					weightEffect(dx, dx_w);
+				float32_t dx_w = (denominatorX && (static_cast<float32_t>(numeratorX) / denominatorX) > threshold) ? weightEffect(dx) : dx;
+				float32_t dy_w = (denominatorY && (static_cast<float32_t>(numeratorY) / denominatorY) > threshold) ? weightEffect(dy) : dy;
 
-				if (fy <= threshold)
-					dy_w = dy;
-				else
-					weightEffect(dy, dy_w);
+				//RCAS (Robust Contrast Adaptive Sharpening)
+				float32_t grayMax = Max(grayLeft, grayRight, grayUp, grayDown, grayThis);
+				float32_t grayMin = Min(grayLeft, grayRight, grayUp, grayDown, grayThis);
+
+				//factor
+				float32_t w = mag_colorToPix_quaurtet * std::fmaxf(-grayMin / grayMax, (maxColorPix - grayMax) / (grayMin - maxColorPix));
 
 				RGBAColor_32f rgba_f1(input(Column + (0), Row + (0)));
 				RGBAColor_32f rgba_f2(input(Column + (1), Row + (0)));
@@ -119,13 +115,6 @@ bool ImageProcessingTools::Zoom_Default(TextureData& input, TextureData& result,
 				LerpRGBA(rgba_f3, rgba_f4, dx_w);
 				LerpRGBA(rgba_f1, rgba_f3, dy_w);
 				//now rgba_f1 is result
-
-				//RCAS (Robust Contrast Adaptive Sharpening)
-				float32_t grayMax = Max(grayLeft, grayRight, grayUp, grayDown, grayThis);
-				float32_t grayMin = Min(grayLeft, grayRight, grayUp, grayDown, grayThis);
-
-				//factor
-				float32_t w = magnification * Max(-grayMin / grayMax, (maxColorPix - grayMax) / (grayMin - maxColorPix)) * ColorPixTofloat * 0.25f;
 
 				RGBAColor_32f rgba_f(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -160,7 +149,7 @@ bool ImageProcessingTools::Zoom_BicubicConvolutionSampling4x4(TextureData& input
 	resultRGBA.resize(static_cast<size_t>(result.width) * result.height);
 
 	const auto CalcSrcIndex = [&scaleIndex](const auto& dstIndex) {
-		return Max(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
+		return std::fmaxf(0.0f, (dstIndex + 0.5f) * scaleIndex - 0.5f);
 		};
 
 	constexpr auto& Formula = ImageProcessingTools::bicubicConvolutionZoomFormula;

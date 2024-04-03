@@ -10,6 +10,7 @@
 #include <sstream>
 #include <tuple>
 #include <thread>
+#include <array>
 #include <random>
 #include "basedef.h"
 #include "CppParallelAccelerator.h"
@@ -232,9 +233,9 @@ public:
 
 protected:
 	template<typename T>
-	static void FastGray(const RGBAColor_8i& color, T& result);//0 - 255
+	static void FastGray(const RGBAColor_8i& color, T& result);//0 to 255
 	template<typename T>
-	static void GrayColor(const RGBAColor_8i& color, T& result);//0 - 255
+	static void GrayColor(const RGBAColor_8i& color, T& result);//0 to 255
 	template<typename T>
 	static void RGBtoHSL_L(const RGBAColor_8i& color, T& result);//rgb to hsl lightness
 
@@ -247,13 +248,14 @@ protected:
 	static void ACESToneMappingColor(RGBAColor_32f& color, const float32_t& adapted_lum);
 	static void HSLAdjustmentColor(RGBAColor_32f& color, const float32_t& hueChange, const float32_t& saturationRatio, const float32_t& lightnessRatio);
 
+	static void MixedPicturesColor(const byte& colorOut, const byte& colorIn, byte& colorResult, byte& alphaResult);
+
 protected:
 	static float32_t bicubicConvolutionZoomFormula(const float32_t& a, const float32_t& x);
 
-	static void weightEffectSquare(const float32_t& dx, float32_t& weightResult);
-	static void weightEffectQuartet(const float32_t& dx, float32_t& weightResult);
+	static float32_t weightEffectSquare(const float32_t& dx);
+	static float32_t weightEffectQuartet(const float32_t& dx);
 
-	static void MixedPicturesColor(const byte& colorOut, const byte& colorIn, byte& colorResult, byte& alphaResult);
 	static void filteringMethod1_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
 	static void filteringMethod1_2(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
 	static void filteringMethod2_1(const RGBAColor_8i& colorOut, byte& resultOut, const RGBAColor_8i& colorIn, byte& resultIn);
@@ -883,16 +885,16 @@ inline float32_t ImageProcessingTools::bicubicConvolutionZoomFormula(const float
 }
 
 //Inverse square
-inline void ImageProcessingTools::weightEffectSquare(const float32_t& dx, float32_t& weightResult)
+inline float32_t ImageProcessingTools::weightEffectSquare(const float32_t& dx)
 {
 	float32_t dx2 = dx * dx;
 	float32_t _dx2 = (1.0f - dx) * (1.0f - dx);
 
-	weightResult = dx2 / (dx2 + _dx2);
+	return dx2 / (dx2 + _dx2);
 }
 
 //Inverse quartet
-inline void ImageProcessingTools::weightEffectQuartet(const float32_t& dx, float32_t& weightResult)
+inline float32_t ImageProcessingTools::weightEffectQuartet(const float32_t& dx)
 {
 	float32_t dx4 = dx * dx;
 	float32_t _dx4 = (1.0f - dx) * (1.0f - dx);
@@ -900,7 +902,7 @@ inline void ImageProcessingTools::weightEffectQuartet(const float32_t& dx, float
 	dx4 *= dx4;
 	_dx4 *= _dx4;
 
-	weightResult = dx4 / (dx4 + _dx4);
+	return dx4 / (dx4 + _dx4);
 }
 
 #endif // !IMAGE_H
