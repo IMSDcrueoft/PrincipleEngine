@@ -127,7 +127,7 @@ public:
 
 	std::vector<RGBAColor_8i>& getRGBA_uint8();
 
-	RGBAColor_8i& operator()(int32_t column, int32_t row);
+	RGBAColor_8i& operator()(int64_t column, int64_t row);
 
 	byte& operator[](const size_t& index);
 
@@ -578,7 +578,7 @@ inline std::vector<RGBAColor_8i>& TextureData::getRGBA_uint8()
 	return this->imageRGBA_uint8;
 }
 
-inline RGBAColor_8i& TextureData::operator()(int32_t column, int32_t row)
+inline RGBAColor_8i& TextureData::operator()(int64_t column, int64_t row)
 {
 	//assert(row >= 0 && "row out of image range.");
 	//assert(row < width && "row out of image range.");
