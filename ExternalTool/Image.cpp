@@ -648,10 +648,10 @@ bool ImageProcessingTools::SobelEdgeEnhancement(TextureData& input, TextureData&
 
 			float32_t G = sqrtf((gx * gx) + (gy * gy)) * 0.33333f;
 
-			if ((G >= thresholdMin) && (G <= thresholdMax))
-				G *= strength;
-			else
+			if (G < thresholdMin)
 				G = 0.0f;
+			else if (G <= thresholdMax)
+				G *= strength;
 
 			RGBAColor_32f center(G);
 			result(X, Y) = center.toRGBAColor_8i();
