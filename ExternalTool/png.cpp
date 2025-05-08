@@ -1,7 +1,7 @@
 /*
 PNG Processor Version 20220322
 
-Copyright (c) 2005-2022 IM&SD
+Copyright (c) 2021-2025 IM&SD
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
