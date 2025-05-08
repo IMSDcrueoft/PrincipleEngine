@@ -1,4 +1,6 @@
 # PrincipleEngine
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/IMSDcrueoft/PrincipleEngine)
+
 This is my graduation project in college, and it's full of miscellaneous tools.
 
 # introduction
