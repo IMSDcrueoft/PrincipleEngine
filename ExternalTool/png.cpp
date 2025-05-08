@@ -23,11 +23,27 @@ so you should also comply with the requirements of its header declaration
 */
 
 #include "png.h"
-#include "crc32.h"
 
 #ifndef FUNC_LIMIT
 #define FUNC_LIMIT false
 #endif // !
+
+// FNV-1a 32-bit hash
+template<typename T = char>
+static uint32_t fnv1a32(T* buff, size_t len, uint32_t init = 0x811C9DC5)
+{
+	// FNV-1a 32位质数（prime）
+	const uint32_t prime = 0x01000193;
+
+	uint32_t hash = init;
+
+	for (size_t i = 0; i < len; ++i) {
+		hash ^= static_cast<uint32_t>(buff[i]);
+		hash *= prime;
+	}
+
+	return hash;
+}
 
 void PngProcessingTools::importFile(TextureData& data, std::filesystem::path& pngfile)
 {
@@ -632,7 +648,7 @@ void PngProcessingTools::commandStartUps(int32_t argCount, STR argValues[])
 		if (argCount > 3)
 		{
 			GetParam(3, keywords);
-			key = xcrc32(keywords.data(), keywords.length(), key);
+			key = fnv1a32(keywords.data(), keywords.length(), key);
 		}
 
 		PngProcessingTools::encryption_xorProgram(key, pngfile);
